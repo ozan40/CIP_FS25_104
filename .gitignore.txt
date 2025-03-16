@@ -1,0 +1,19 @@
+# Ignoriere alles im scripts/ Ordner
+scripts/
+
+# Ignoriere die Datei transformed_output.csv im Root-Verzeichnis
+transformed_output.csv
+
+# __pycache__-Ordner ignorieren (automatisch generiert von Python)
+__pycache__/
+
+# Virtuelle Umgebungen ignorieren
+venv/
+.env/
+
+# IDE-spezifische Dateien ignorieren
+.vscode/
+.idea/
+
+# MacOS-spezifische Dateien
+.DS_Store
