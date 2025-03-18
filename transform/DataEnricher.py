@@ -75,5 +75,6 @@ class DataEnricher:
                 category = pd.CategoricalDtype(ordered_cats[col], ordered=True)
                 self.enriched_df[col] = self.enriched_df[col].astype(category)
 
+
         return self.enriched_df
 
