@@ -14,6 +14,18 @@ This project aims to analyze and compare used car prices, fuel efficiency, and e
 |__ <b>data_folder</b>
 </pre>
 
+
+## Dataset
+
+|variable          |class     |description |
+|:-----------------|:---------|:-----------|
+|car_brand              |character | car brand  |
+|horse_power_hp         |integer | horse power  |
+|milage_in_km              |integer   | milage of a car in kilometers|
+|             |    | |
+|              |    |  |
+
+
 ## Virtual Environment 
 Create virtual environment by opening a terminal in project folder and run: 
 
