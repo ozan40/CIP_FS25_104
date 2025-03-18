@@ -36,3 +36,66 @@ plt.xlabel("Marke")
 plt.ylabel("CO₂-Emissionen (g/km)")
 plt.legend(title="Kraftstoffart")
 plt.show()
+
+
+##################################################################################################
+##################################################################################################
+# Here are more specific visuals
+# Focus analysis on Top 10 brands for readability
+top_brands = car_df['Brand'].value_counts().nlargest(10).index
+filtered_df = car_df[car_df['Brand'].isin(top_brands)]
+
+# Set visualization style
+sns.set(style="whitegrid")
+
+# Research Question 1: Price comparison between brands
+# Using boxplot for better insight into price spread
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=filtered_df, x="Brand", y="cleaned_Price", hue = "Brand")
+plt.title("Price Distribution per Brand (Top 10)")
+plt.ylabel("Price (€)")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Reasoning: Boxplots show median, spread, and outliers, ideal for comparing price variation across brands
+
+# Research Question 1 (cont.): Price per km efficiency
+# Violin plot shows distribution and density
+plt.figure(figsize=(12, 6))
+sns.violinplot(data=filtered_df, x="Brand", y="Price_per_km", inner="quartile", hue = "Brand")
+plt.title("Price per km Distribution per Brand (Top 10)")
+plt.ylabel("Price per km (€)")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Research Question 2: Fuel Consumption vs CO2 Emissions
+# Scatter plot to highlight correlation
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=filtered_df, x="Consumption", y="CO2_g_km", hue="Brand", palette="tab10")
+plt.title("Fuel Consumption vs CO2 Emissions")
+plt.xlabel("Consumption (L/100km)")
+plt.ylabel("CO2 Emissions (g/km)")
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+# Reasoning: Highlights relationship between fuel efficiency and environmental impact
+
+# Research Question 3: Fuel Cost vs Horsepower by Gear Type
+# Bubble chart to show multi-dimensional insights
+plt.figure(figsize=(12, 6))
+sns.scatterplot(
+    data=filtered_df,
+    x="Power_PS", y="Annual_Fuel_Cost",
+    hue="Gear_Type", size="Price_per_km", sizes=(40, 400), alpha=0.7
+)
+plt.title("Annual Fuel Cost vs Horsepower by Gear Type")
+plt.xlabel("Horsepower (PS)")
+plt.ylabel("Annual Fuel Cost (€)")
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+# Reasoning: Compares performance vs cost-efficiency, enhanced by gear type and price per km bubble size
