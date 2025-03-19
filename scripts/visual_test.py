@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-car_df = pd.read_csv('../transformed_output.csv', sep = ";")
+car_df = pd.read_csv('../Data/transformed_output.csv', sep =";")
 print(car_df.head())
 print(car_df.columns)
 

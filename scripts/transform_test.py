@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-car_df = pd.read_csv('../crawled_output.csv', sep = ";")
+car_df = pd.read_csv('../Data/crawled_output.csv', sep =";")
 print(car_df.head())
 
 ########################################################################################################################
