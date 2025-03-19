@@ -1,0 +1,22 @@
+# Ignoriere alles im scripts/ Ordner
+scripts/autoscout24_scraper.py
+scripts/autoscout24_scraperV2.py
+scripts/Test.py
+scripts/test_2.py
+
+# Ignoriere die Datei transformed_output.csv im Root-Verzeichnis
+Data/transformed_output.csv
+
+# __pycache__-Ordner ignorieren (automatisch generiert von Python)
+__pycache__/
+
+# Virtuelle Umgebungen ignorieren
+venv/
+.env/
+
+# IDE-spezifische Dateien ignorieren
+.vscode/
+.idea/
+
+# MacOS-spezifische Dateien
+.DS_Store
