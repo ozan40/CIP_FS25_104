@@ -5,7 +5,7 @@ scripts/Test.py
 scripts/test_2.py
 
 # Ignoriere die Datei transformed_output.csv im Root-Verzeichnis
-transformed_output.csv
+Data/transformed_output.csv
 
 # __pycache__-Ordner ignorieren (automatisch generiert von Python)
 __pycache__/
