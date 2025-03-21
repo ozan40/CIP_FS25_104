@@ -202,3 +202,33 @@ pipeline_mlp = Pipeline([
 ])
 
 pipeline_mlp.fit(X_train, y_train)
+
+y_pred_mlp = pipeline_mlp.predict(X_test)
+rmse_mlp = np.sqrt(mean_squared_error(y_test, y_pred_mlp))
+r2_mlp = r2_score(y_test, y_pred_mlp)
+
+print("XGBoost Regression Results:")
+print(f"RMSE: {rmse_mlp:.2f} L/100km")
+print(f"R² Score: {r2_mlp:.2f}\n")
+
+# Visualization: Actual vs. Predicted for MLP
+plt.figure(figsize=(8, 5))
+plt.scatter(y_test, y_pred_mlp, alpha=0.6, color='cyan')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], '--r')
+plt.xlabel('Actual Consumption (L/100km)')
+plt.ylabel('Predicted Consumption (L/100km)')
+plt.title('MLP: Actual vs. Predicted Consumption')
+plt.show()
+
+# 📊 Final Model Comparison Summary
+print("Updated Model Comparison Summary:")
+print(f"Linear Regression - RMSE: {rmse_lr:.2f}, R²: {r2_lr:.2f}")
+print(f"Random Forest - RMSE: {rmse_rf:.2f}, R²: {r2_rf:.2f}")
+print(f"Gradient Boosting - RMSE: {rmse_gb:.2f}, R²: {r2_gb:.2f}")
+print(f"XGBoost - RMSE: {rmse_xgb:.2f}, R²: {r2_xgb:.2f}")
+print(f"MLP Regressor - RMSE: {rmse_mlp:.2f}, R²: {r2_mlp:.2f}")
+
+# Justification Summary:
+# MLP Regressors require scaled input due to their reliance on gradient-based optimization.
+# Early stopping helps avoid overfitting, especially with limited data.
+# Reference: https://scikit-learn.org/stable/modules/neural_networks_supervised.html
