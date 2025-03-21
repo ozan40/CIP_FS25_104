@@ -41,3 +41,16 @@ pipeline = Pipeline([
     ('preprocessor', preprocessor),
     ('regressor', LinearRegression())
 ])
+
+# 6️⃣ Train-test split and model fitting
+# Justification: Train-test split allows unbiased evaluation of model performance
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+pipeline.fit(X_train, y_train)
+
+# 7️⃣ Predict and evaluate performance
+y_pred = pipeline.predict(X_test)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+r2 = r2_score(y_test, y_pred)
+
+print(f"RMSE: {rmse:.2f} L/100km")
+print(f"R² Score: {r2:.2f}")
