@@ -186,3 +186,8 @@ print(f"XGBoost - RMSE: {rmse_xgb:.2f}, R²: {r2_xgb:.2f}")
 # especially useful in large datasets or complex feature interactions.
 # Source: https://arxiv.org/abs/1603.02754 (Chen & Guestrin, 2016)
 
+# XGBoost Justification: Known for its efficiency and accuracy due to regularization and optimization techniques.
+# Source: Chen & Guestrin (2016), XGBoost: A Scalable Tree Boosting System.
+# Result Analysis: XGBoost achieved competitive performance with RMSE and R² similar to Linear Regression but lower than Random Forest,
+# suggesting further hyperparameter tuning could enhance it.
+# Scaling Impact: StandardScaler particularly improved Linear Regression (R²: 0.67 → 0.90), which is sensitive to feature scales.
