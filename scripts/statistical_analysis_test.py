@@ -76,3 +76,7 @@ pipeline_rf = Pipeline([
 ])
 
 pipeline_rf.fit(X_train, y_train)
+
+y_pred_rf = pipeline_rf.predict(X_test)
+rmse_rf = np.sqrt(mean_squared_error(y_test,y_pred_rf))
+r2_rf = r2_score(y_test, y_pred_rf)
