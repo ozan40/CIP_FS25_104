@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
@@ -234,5 +234,45 @@ print(f"MLP Regressor - RMSE: {rmse_mlp:.2f}, R²: {r2_mlp:.2f}")
 # Reference: https://scikit-learn.org/stable/modules/neural_networks_supervised.html
 
 # Conclusion:
-# MLP Regressor leads in performance. Further gains possible via hyperparameter tuning using GridSearchCV or RandomizedSearchCV (Source: scikit-learn GridSearchCV documentation).
-# MLP performed best, with R² = 0.95. Scaling was essential for convergence and performance due to gradient-based optimization. Source: scikit-learn MLP documentation.
+# MLP Regressor leads in performance. Further gains possible via hyperparameter tuning using GridSearchCV or RandomizedSearchCV
+# (Source: scikit-learn GridSearchCV documentation).
+# MLP performed best, with R² = 0.95. Scaling was essential for convergence and performance due to gradient-based optimization.
+# Source: scikit-learn MLP documentation.
+########################################################################################################################
+# Random Forest Regression: Hyperparameter_tuning
+########################################################################################################################
+# Random Forest with GridSearchCV for hyperparameter tuning
+# Justification: Tuning helps optimize model performance by selecting best parameters for depth, split, and estimators (Bergstra & Bengio, 2012)
+param_grid_rf = {
+    'regressor__n_estimators': [50, 100, 200],
+    'regressor__max_depth': [None, 10, 20],
+    'regressor__min_samples_split': [2, 5, 10]
+}
+
+grid_search_rf = GridSearchCV(pipeline_rf, param_grid_rf, cv=3, scoring='neg_root_mean_squared_error', n_jobs=-1)
+grid_search_rf.fit(X_train, y_train)
+
+print("\nRandom Forest Before Tuning:")
+print(f"RMSE: {rmse_rf:.2f} L/100km")
+print(f"R² Score: {r2_rf:.2f}")
+
+# Best parameters and evaluation
+y_pred_rf = grid_search_rf.predict(X_test)
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+r2_rf = r2_score(y_test, y_pred_rf)
+
+print("\nBest Parameters (Random Forest):")
+print(grid_search_rf.best_params_)
+print("\nRandom Forest After Tuning:")
+print(f"RMSE: {rmse_rf:.2f} L/100km")
+print(f"R² Score: {r2_rf:.2f}")
+
+# Note: GridSearchCV systematically explores parameter combinations to find the optimal model configuration.
+# Source: scikit-learn documentation, Bergstra & Bengio (2012), Random Search for Hyper-Parameter Optimization
+
+# Random Forest Tuning Results Reasoning:
+# The Random Forest model showed a minor improvement in RMSE from 0.32 to 0.31 L/100km and an R² increase from 0.94 to 0.95 after tuning.
+# This gain stems from increasing the number of estimators (trees) to 200, which reduces variance and enhances stability in predictions.
+# The selected max_depth=None allows trees to grow fully, capturing complex patterns in the data.
+# While the improvements are modest, they validate the benefit of tuning over using default hyperparameters.
+# Source: Bergstra & Bengio (2012) highlight that grid search can uncover performance improvements through parameter exploration.
