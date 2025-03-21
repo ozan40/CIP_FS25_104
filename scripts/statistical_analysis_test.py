@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder
@@ -65,3 +66,13 @@ plt.ylabel('Predicted Consumption (L/100km)')
 plt.title('Actual vs. Predicted Consumption')
 plt.show()
 
+# 🔁 Random Forest Regression for comparison
+# Justification: Random Forest can capture non-linear relationships and interactions between variables,
+# offering potential accuracy improvements over linear models.
+
+pipeline_rf = Pipeline([
+    ('preprocessor',preprocessor),
+    ('regressor',RandomForestRegressor(n_estimators=100, random_state=42))
+])
+
+pipeline_rf.fit(X_train, y_train)
