@@ -232,3 +232,7 @@ print(f"MLP Regressor - RMSE: {rmse_mlp:.2f}, R²: {r2_mlp:.2f}")
 # MLP Regressors require scaled input due to their reliance on gradient-based optimization.
 # Early stopping helps avoid overfitting, especially with limited data.
 # Reference: https://scikit-learn.org/stable/modules/neural_networks_supervised.html
+
+# Conclusion:
+# MLP Regressor leads in performance. Further gains possible via hyperparameter tuning using GridSearchCV or RandomizedSearchCV (Source: scikit-learn GridSearchCV documentation).
+# MLP performed best, with R² = 0.95. Scaling was essential for convergence and performance due to gradient-based optimization. Source: scikit-learn MLP documentation.
