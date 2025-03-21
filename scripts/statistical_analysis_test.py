@@ -8,7 +8,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
-import xgboost as xgb
+from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 
 # Load the data
@@ -71,7 +71,7 @@ plt.ylabel('Predicted Consumption (L/100km)')
 plt.title('Actual vs. Predicted Consumption')
 plt.show()
 
-# 🔁 Random Forest Regression for comparison
+# 🧠 Random Forest Regression for comparison
 # Justification: Random Forest can capture non-linear relationships and interactions between variables,
 # offering potential accuracy improvements over linear models.
 
@@ -107,7 +107,7 @@ print("Model Comparison Summary:")
 print(f"Linear Regression - RMSE: {rmse_lr:.2f}, R²: {r2_lr:.2f}")
 print(f"Random Forest - RMSE: {rmse_rf:.2f}, R²: {r2_rf:.2f}")
 
-# 🔄 Gradient Boosting Regression (next model)
+# 🧠 Gradient Boosting Regression (next model)
 # Justification: Gradient Boosting often achieves high predictive performance by sequentially correcting the errors of previous models.
 # It is effective in reducing bias and variance (source: Friedman, 2001).
 
@@ -191,3 +191,14 @@ print(f"XGBoost - RMSE: {rmse_xgb:.2f}, R²: {r2_xgb:.2f}")
 # Result Analysis: XGBoost achieved competitive performance with RMSE and R² similar to Linear Regression but lower than Random Forest,
 # suggesting further hyperparameter tuning could enhance it.
 # Scaling Impact: StandardScaler particularly improved Linear Regression (R²: 0.67 → 0.90), which is sensitive to feature scales.
+
+# 🧠 MLP Regressor Pipeline
+# Justification: MLP (Multi-layer Perceptron) can model complex non-linear relationships.
+# Note: We use early stopping to prevent overfitting.
+pipeline_mlp = Pipeline([
+    ('preprocessor', preprocessor),
+    ('regressor', MLPRegressor(hidden_layer_sizes=(100, 50), max_iter=1000,
+                               random_state=42, early_stopping=True))
+])
+
+pipeline_mlp.fit(X_train, y_train)
