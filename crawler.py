@@ -10,7 +10,7 @@ for car in fetcher.fetch():
             car.gear, car.date, car.fuel, car.power, car.consumption, car.co2
         )
     )
-crawler.CrawledCar.file_maker(crawled_car)
+crawler.CrawledCar.file_maker(crawled_car, filename="Data/autoscout_data.csv", marketplace_name="Autoscout24.de")
 
 # Close the driver
 fetcher.close()

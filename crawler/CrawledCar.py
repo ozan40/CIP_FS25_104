@@ -21,14 +21,14 @@ class CrawledCar():
 
     # Methode zur Speicherung aller CrawledCar-Instanzen als CSV-Datei
     @staticmethod
-    def file_maker(cars_list, filename="crawled_output.csv"):
+    def file_maker(cars_list, filename="Data/crawled_output.csv", marketplace_name="Autoscout24.de"):
         """Erstellt eine CSV-Datei mit `;`-getrennten Werten aus einer Liste von CrawledCar-Objekten."""
 
         # CSV-Spalten definieren
         headers = [
             "Brand", "Model", "Car_Info", "User_Desc", "Price", "Price_Eval",
             "Kilometer", "Gear_Type", "YearMonth", "Fuel_Type", "Horsepower",
-            "Consumption", "CO2_Emission"
+            "Consumption", "CO2_Emission", "Marketplace"  # Marketplace hinzugefügt
         ]
 
         # Datei schreiben
@@ -38,9 +38,11 @@ class CrawledCar():
 
             # Jedes CrawledCar-Objekt in eine Zeile umwandeln
             for car in cars_list:
+                car.marketplace = marketplace_name  # Setze den Marktplatznamen für jedes Objekt
                 writer.writerow([
                     car.brand, car.model, car.car_info, car.user_text, car.price, car.price_evaluation,
-                    car.kilometer, car.gear, car.date, car.fuel, car.power, car.consumption, car.co2
+                    car.kilometer, car.gear, car.date, car.fuel, car.power, car.consumption, car.co2,
+                    car.marketplace  # Marketplace-Wert hinzufügen
                 ])
 
         print(f"CSV-Datei erfolgreich erstellt: {filename}")
