@@ -156,3 +156,33 @@ pipeline_xgb = Pipeline([
 ])
 
 pipeline_xgb.fit(X_train, y_train)
+
+y_pred_xgb = pipeline_xgb.predict(X_test)
+rmse_xgb = np.sqrt(mean_squared_error(y_test, y_pred_xgb))
+r2_xgb = r2_score(y_test, y_pred_xgb)
+
+print("XGBoost Regression Results:")
+print(f"RMSE: {rmse_xgb:.2f} L/100km")
+print(f"R² Score: {r2_xgb:.2f}\n")
+
+# Visualization: Actual vs. Predicted for XGBoost
+plt.figure(figsize=(8, 5))
+plt.scatter(y_test, y_pred_xgb, alpha=0.6, color='purple')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], '--r')
+plt.xlabel('Actual Consumption (L/100km)')
+plt.ylabel('Predicted Consumption (L/100km)')
+plt.title('XGBoost: Actual vs. Predicted Consumption')
+plt.show()
+
+# 📊 Final Model Comparison Summary
+print("Updated Model Comparison Summary:")
+print(f"Linear Regression - RMSE: {rmse_lr:.2f}, R²: {r2_lr:.2f}")
+print(f"Random Forest - RMSE: {rmse_rf:.2f}, R²: {r2_rf:.2f}")
+print(f"Gradient Boosting - RMSE: {rmse_gb:.2f}, R²: {r2_gb:.2f}")
+print(f"XGBoost - RMSE: {rmse_xgb:.2f}, R²: {r2_xgb:.2f}")
+
+# 🔍 Summary Insight
+# Observation: XGBoost offers competitive performance similar to Random Forest, benefiting from regularization and optimization,
+# especially useful in large datasets or complex feature interactions.
+# Source: https://arxiv.org/abs/1603.02754 (Chen & Guestrin, 2016)
+
