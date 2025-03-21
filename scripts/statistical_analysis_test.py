@@ -8,6 +8,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
+import xgboost as xgb
+from xgboost import XGBRegressor
 
 # Load the data
 auto_df = pd.read_csv("../Data/transformed_output.csv", sep=";")
@@ -143,3 +145,14 @@ print(f"Gradient Boosting - RMSE: {rmse_gb:.2f}, R²: {r2_gb:.2f}")
 # This is because Linear Regression is sensitive to feature magnitudes, unlike Random Forest which is scale-invariant.
 # Reference: https://scikit-learn.org/stable/modules/preprocessing.html#standardization-or-mean-removal-and-variance-scaling
 # Scaling ensures features contribute proportionally to predictions, especially important in models using gradient-based optimization.
+
+# 🧠 XGBoost Regression
+# Justification: XGBoost is known for its high performance in structured data and competitions.
+# It uses gradient boosting framework with regularization, enabling it to handle overfitting better and provide superior performance in many regression tasks.
+# Source: Chen & Guestrin, 2016 (XGBoost: A Scalable Tree Boosting System)
+pipeline_xgb = Pipeline([
+    ('preprocessor', preprocessor),
+    ('regressor', XGBRegressor(n_estimators=100, learning_rate=0.1, random_state=42, verbosity=0))
+])
+
+pipeline_xgb.fit(X_train, y_train)
