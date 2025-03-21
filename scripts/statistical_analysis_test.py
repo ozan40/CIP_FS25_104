@@ -50,11 +50,12 @@ pipeline.fit(X_train, y_train)
 
 # 7️⃣ Predict and evaluate performance
 y_pred = pipeline.predict(X_test)
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-r2 = r2_score(y_test, y_pred)
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred))
+r2_lr = r2_score(y_test, y_pred)
 
-print(f"RMSE: {rmse:.2f} L/100km")
-print(f"R² Score: {r2:.2f}")
+print("Linear Regression Resulsts:")
+print(f"RMSE: {rmse_lr:.2f} L/100km")
+print(f"R² Score: {r2_lr:.2f}")
 
 # 8️⃣ Visualization: Actual vs. Predicted
 # Justification: Helps assess systematic errors and visual fit of the model
@@ -80,3 +81,24 @@ pipeline_rf.fit(X_train, y_train)
 y_pred_rf = pipeline_rf.predict(X_test)
 rmse_rf = np.sqrt(mean_squared_error(y_test,y_pred_rf))
 r2_rf = r2_score(y_test, y_pred_rf)
+
+print("Random Forest Regression Results:")
+print(f"RMSE: {rmse_rf:.2f} L/100km")
+print(f"R² Score: {r2_rf:.2f}")
+
+# Visualization: Actual vs. Predicted for Random Forest
+plt.figure(figsize=(8, 5))
+plt.scatter(y_test, y_pred_rf, alpha=0.6, color='green')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], '--r')
+plt.xlabel('Actual Consumption (L/100km)')
+plt.ylabel('Predicted Consumption (L/100km)')
+plt.title('Random Forest: Actual vs. Predicted Consumption')
+plt.show()
+
+# 📊 Summary of Model Performance
+# Explanation: Random Forest outperformed Linear Regression significantly with lower RMSE and higher R².
+# This suggests that Random Forest better captures the non-linear relationships in the data,
+# making it a more suitable model for predicting fuel consumption.
+print("Model Comparison Summary:")
+print(f"Linear Regression - RMSE: {rmse_lr:.2f}, R²: {r2_lr:.2f}")
+print(f"Random Forest - RMSE: {rmse_rf:.2f}, R²: {r2_rf:.2f}")
