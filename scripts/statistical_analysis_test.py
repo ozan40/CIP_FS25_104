@@ -54,3 +54,14 @@ r2 = r2_score(y_test, y_pred)
 
 print(f"RMSE: {rmse:.2f} L/100km")
 print(f"R² Score: {r2:.2f}")
+
+# 8️⃣ Visualization: Actual vs. Predicted
+# Justification: Helps assess systematic errors and visual fit of the model
+plt.figure(figsize=(8, 5))
+plt.scatter(y_test, y_pred, alpha=0.6)
+plt.plot([y.min(), y.max()], [y.min(), y.max()], '--r')
+plt.xlabel('Actual Consumption (L/100km)')
+plt.ylabel('Predicted Consumption (L/100km)')
+plt.title('Actual vs. Predicted Consumption')
+plt.show()
+
