@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_squared_error, r2_score
@@ -32,10 +32,12 @@ categorical_features = ['Brand', 'Model', 'Fuel_Type', 'Gear_Type']
 numeric_features = ['Kilometer', 'Power_PS', 'car_age']
 
 # 5️⃣ Build pipeline with preprocessing and Linear Regression model
-# Justification: Pipelines prevent data leakage and ensure reproducibility and cleaner code (source: scikit-learn docs)
+# Justification: Scaling ensures that numeric features are on the same scale, improving convergence and performance of
+# certain models (e.g., Linear Regression, Gradient Boosting). Source: scikit-learn documentation.
 preprocessor = ColumnTransformer(
     transformers=[
-        ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)
+        ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features),
+        ('num',StandardScaler(), numeric_features)
     ], remainder='passthrough')
 
 pipeline = Pipeline([
