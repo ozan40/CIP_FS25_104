@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder
@@ -102,3 +102,15 @@ plt.show()
 print("Model Comparison Summary:")
 print(f"Linear Regression - RMSE: {rmse_lr:.2f}, R²: {r2_lr:.2f}")
 print(f"Random Forest - RMSE: {rmse_rf:.2f}, R²: {r2_rf:.2f}")
+
+# 🔄 Gradient Boosting Regression (next model)
+# Justification: Gradient Boosting often achieves high predictive performance by sequentially correcting the errors of previous models.
+# It is effective in reducing bias and variance (source: Friedman, 2001).
+
+pipeline_gb = Pipeline([
+    ('preprocessor', preprocessor),
+    ('regressor', GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42))
+])
+
+pipeline_gb.fit(X_train, y_train)
+
