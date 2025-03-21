@@ -76,7 +76,7 @@ class CarsFetcher():
     def fetch(self):
         cars_element = []
         first_registration = np.arange(2010, 2018, 1)
-        pages = np.arange(1, 10, 1)
+        pages = np.arange(1, 20, 1)
 
         for registration in first_registration:
             for page in pages:
