@@ -1,6 +1,11 @@
 import transform
 import pandas as pd
 
+import pandas as pd
+import numpy as np
+import missingno as msno
+import matplotlib.pyplot as plt
+
 
 if __name__ == "__main__":
     # load data
@@ -16,12 +21,10 @@ if __name__ == "__main__":
     enricher = transform.DataEnricher(cleaned_df)
     enriched_df = enricher.categorize_cols()
 
-
-
     print(missing_val)
     print(msno_visual)
     print(outlier_information)
     print(enriched_df.dtypes)
-    print(enriched_df['YearMonth'].head())
+
     #enriched_df.to_csv("Data/transformed_output.csv", sep=";")
 
