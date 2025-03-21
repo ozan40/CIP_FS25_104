@@ -45,7 +45,7 @@ class DataEnricher:
         self.df_2 = self.df_0[['Brand','Model','YearMonth','cleaned_Price','Price_Eval',
                                'Kilometer','Gear_Type','Fuel_Type','Consumption',
                                'CO2_g_km', 'Power_PS', 'Price_per_km','Fuel_Cost_per_100km','Annual_Fuel_Cost',
-                               'CO2_per_year','CO2_Emission_Category']]
+                               'CO2_per_year','CO2_Emission_Category','Marketplace']]
         return self.df_2
 
     def categorize_cols(self):

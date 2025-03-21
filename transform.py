@@ -4,7 +4,7 @@ import pandas as pd
 
 if __name__ == "__main__":
     # load data
-    car_df = pd.read_csv("Data/crawled_output.csv", sep=";")
+    car_df = pd.read_csv("Data/autoscout_data.csv", sep=";")
 
     # clean Data
     cleaner = transform.DataCleaner(car_df)
