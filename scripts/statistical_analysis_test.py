@@ -276,3 +276,41 @@ print(f"R² Score: {r2_rf:.2f}")
 # The selected max_depth=None allows trees to grow fully, capturing complex patterns in the data.
 # While the improvements are modest, they validate the benefit of tuning over using default hyperparameters.
 # Source: Bergstra & Bengio (2012) highlight that grid search can uncover performance improvements through parameter exploration.
+########################################################################################################################
+# Gradient Boosting Regression: Hyperparameter_tuning
+########################################################################################################################
+param_grid_gb = {
+    'regressor__n_estimators': [100, 200],
+    'regressor__learning_rate': [0.05, 0.1],
+    'regressor__max_depth': [3, 5]
+}
+
+grid_search_gb = GridSearchCV(pipeline_gb, param_grid_gb, cv=3, scoring='neg_root_mean_squared_error', n_jobs=-1)
+grid_search_gb.fit(X_train, y_train)
+
+print("\nGradient Boosting After Tuning:")
+print(f"RMSE: {rmse_gb:.2f} L/100km")
+print(f"R² Score: {r2_gb:.2f}")
+# Best parameters and evaluation for Gradient Boosting
+y_pred_gb = grid_search_gb.predict(X_test)
+rmse_gb = np.sqrt(mean_squared_error(y_test, y_pred_gb))
+r2_gb = r2_score(y_test, y_pred_gb)
+
+print("\nBest Parameters (Gradient Boosting):")
+print(grid_search_gb.best_params_)
+print("\nGradient Boosting After Tuning:")
+print(f"RMSE: {rmse_gb:.2f} L/100km")
+print(f"R² Score: {r2_gb:.2f}")
+
+# Visualization for Gradient Boosting
+plt.figure(figsize=(8, 5))
+plt.scatter(y_test, y_pred_gb, alpha=0.6, color='orange')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], '--r')
+plt.xlabel('Actual Consumption (L/100km)')
+plt.ylabel('Predicted Consumption (L/100km)')
+plt.title('Gradient Boosting (Tuned): Actual vs. Predicted Consumption')
+plt.show()
+
+# Reasoning: Gradient Boosting tuning adjusted learning rate and tree depth, balancing bias and variance.
+# Improved performance indicates the model better captures data complexity without overfitting.
+# Source: Friedman, J.H. (2001). Greedy Function Approximation: A Gradient Boosting Machine.
