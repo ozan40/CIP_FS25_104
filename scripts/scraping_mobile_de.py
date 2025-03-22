@@ -34,21 +34,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from crawler.CrawledCar import CrawledCar
 
 url = "https://suchen.mobile.de/fahrzeuge/search.html?dam=false&isSearchRequest=true&ref=quickSearch&s=Car&sb=rel&vc=Car"
 
-
-class crawledCar():
-    def __init__(self, hp = None, km = None, year = None,
-                 date: str | None = None, price_euro: str | None = None,
-                 country: str | None = None, brand: str | None = None) -> None:
-        self.hp = hp
-        self.km = km
-        self.year = year
-        self.date = date
-        self.price_euro = price_euro
-        self.country = country
-        self.brand = brand
+print(url)
 
 
 class carFetcher():
@@ -57,7 +47,8 @@ class carFetcher():
         self.driver = webdriver.Firefox()
         self.all_cars = []
 
-    def extract_info(self, car_html, tag: str = None, class_input: str = None, attrs: dict = None) -> str | None:
+    @staticmethod
+    def extract_info(car_html, tag: str = None, class_input: str = None, attrs: dict = None) -> str | None:
         try:
             return car_html.find(tag, class_=class_input).text
         except AttributeError:
@@ -68,23 +59,29 @@ class carFetcher():
         soup = BeautifulSoup(self.driver.page_source, 'html.parser')
 
         all_cars_html = soup.find_all('article', class_="A3G6X vTKPY")
-
+        #fuel_keywords = ["Benzin", "Diesel", "Elektro", "Autogas (LPG)", "Elektro/Benzin", "Elektro/Diesel", "Sonstige",
+        #                "Erdgas (CNG)", "Ethanol", "Wasserstoff"]
         cars = []
-        for car in all_cars_html[2:]:  # change this not hard coded
+        for car in all_cars_html:  # change this not hard coded
             #idx = 1
 
-            list_info = self.extract_info(car, 'div', 'HaBLt')
-            price = self.extract_info(car, 'span', 't5RmH')
-            brand = self.extract_info(car, 'span', 'LBG5d')
+            list_info = carFetcher.extract_info(car, 'div', 'HaBLt')
+            price = carFetcher.extract_info(car, 'span', 't5RmH')
+            brand = carFetcher.extract_info(car, 'span', 'LBG5d')
             if list_info:
                 list_info = list_info.split("•")
                 list_info = [element.replace("\xa0", " ").strip() for element in list_info]
                 hp = next((element for element in list_info if " kW " in element), None)
                 km = next((element for element in list_info if " km" in element), None)
                 year = next((element for element in list_info if "EZ " in element), None)
+            else:
+                hp = None
+                km = None
+                year = None
+
                 # print(f"Extracted Info: {hp}, {km}, {year}, {price}, {brand}")  # Debugging
 
-            crawled_object = crawledCar(hp = hp, km = km, year = year, price_euro = price, brand = brand)
+            crawled_object = CrawledCar(power = hp, kilometer = km, date = year, price = price, brand = brand)
             cars.append(crawled_object)
             #idx += 1
 

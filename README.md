@@ -7,11 +7,21 @@ This project aims to analyze and compare used car prices, fuel efficiency, and e
 <b>Directory Structure</b>
 |__ <b>.gitignore</b>
 |__ <b>requirements.txt</b>
-|__ <b>scraping_scripts</b>
-    |______ <b>scraping_mobile_de.py</b>
-    |______ <b>scraping_auto_de.py</b>
-    |______ <b>scraping_autoscout24_de.py</b>
-|__ <b>data_folder</b>
+|__ <b>crawler</b>
+    |______ <b>__init__.py</b>
+    |______ <b>CarsFetcher.py</b>
+    |______ <b>CrawledCar.py</b>
+|__ <b>Data</b>
+    |______ <b>crawled_output.csv</b>
+|__ <b>scripts</b>
+    |______ <b>autoscout24_scraper.py</b>
+    |______ <b>mobile_scraper.py</b>
+    |______ <b>auto_scraper.py</b>
+|__ <b>transform</b>
+    |______ <b>__init__.py</b>
+    |______ <b>DataCleaner.py</b>
+    |______ <b>DataEnricher.py</b>
+
 </pre>
 
 
