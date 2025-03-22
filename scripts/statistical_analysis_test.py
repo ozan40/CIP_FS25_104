@@ -314,3 +314,11 @@ plt.show()
 # Reasoning: Gradient Boosting tuning adjusted learning rate and tree depth, balancing bias and variance.
 # Improved performance indicates the model better captures data complexity without overfitting.
 # Source: Friedman, J.H. (2001). Greedy Function Approximation: A Gradient Boosting Machine.
+
+# Gradient Boosting Tuning Results Reasoning:
+# Hyperparameter tuning for Gradient Boosting optimized key parameters like the learning rate, max depth,
+# and number of estimators, balancing the model’s bias and variance.
+# A lower learning rate with an increased number of trees allows the model to learn patterns more gradually,
+# minimizing overfitting. Deeper trees capture complex relationships, and tuning depth helps avoid excessive complexity.
+# These adjustments enable the model to better generalize from training to unseen data.
+# Source: Friedman, J.H. (2001). Greedy Function Approximation: A Gradient Boosting Machine. The Annals of Statistics.
