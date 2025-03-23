@@ -240,3 +240,44 @@ plt.show()
 
 # Quelle: Géron, A. (2019). Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow.
 # Residual Analysis: https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_residuals.html
+
+from sklearn.model_selection import cross_val_score, KFold
+from sklearn.metrics import make_scorer
+
+# Define CV strategy
+cv_strategy = KFold(n_splits=5, shuffle=True, random_state=42)
+
+# Define models with their pipelines
+models = {
+    'Ridge Regression': pipeline_ridge,
+    'Random Forest': pipeline_rf,
+    'Gradient Boosting': pipeline_gb,
+    'XGBoost': pipeline_xgb,
+    'MLP Regressor': pipeline_mlp
+}
+
+# Scorers
+rmse_scorer = make_scorer(mean_squared_error, squared=False)  # RMSE scorer
+r2_scorer = make_scorer(r2_score)
+
+# Store results
+cv_results = {}
+
+for name, pipeline in models.items():
+    print(f"\nModel: {name}")
+
+    # Cross-validated RMSE
+    rmse_scores = cross_val_score(pipeline, X, y, scoring=rmse_scorer, cv=cv_strategy)
+    # Cross-validated R²
+    r2_scores = cross_val_score(pipeline, X, y, scoring='r2', cv=cv_strategy)
+
+    print(f"RMSE CV Mean: {rmse_scores.mean():.2f} ± {rmse_scores.std():.2f}")
+    print(f"R² CV Mean: {r2_scores.mean():.2f} ± {r2_scores.std():.2f}")
+
+    # Save in dictionary
+    cv_results[name] = {
+        'RMSE Mean': rmse_scores.mean(),
+        'RMSE Std': rmse_scores.std(),
+        'R² Mean': r2_scores.mean(),
+        'R² Std': r2_scores.std()
+    }

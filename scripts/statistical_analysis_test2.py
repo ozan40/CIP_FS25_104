@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, KFold
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, make_scorer
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
@@ -64,8 +64,14 @@ preprocessor = ColumnTransformer(
         ('num', numeric_transformer, columns_to_scale)
     ])
 
+
+
 # Split the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Add this scorer outside function
+rmse_scorer = make_scorer(mean_squared_error, squared=False)
+cv_strategy = KFold(n_splits=5, shuffle=True, random_state=42)
 
 # Store performance results
 model_results_before_tuning = {}
@@ -132,6 +138,18 @@ def tune_and_evaluate_model(name, pipeline, param_grid, X_train, X_test, y_train
     # plt.title(f'{name} (Final): Actual vs. Predicted Consumption')
     # plt.show()
 
+    # # Visualize
+    # plt.figure(figsize=(8, 5))
+    # plt.scatter(y_test, y_pred, alpha=0.6, color=color)
+    # plt.plot([y.min(), y.max()], [y.min(), y.max()], '--r')
+    # plt.xlabel('Actual Consumption (L/100km)')
+    # plt.ylabel('Predicted Consumption (L/100km)')
+    # plt.title(f'{name} (Final): Actual vs. Predicted Consumption')
+    # plt.show()
+
+
+
+
 # Train and evaluate Linear Regression
 pipeline_ridge = Pipeline([
     ('preprocessor', preprocessor),
@@ -197,7 +215,7 @@ tune_and_evaluate_model("XGBoost", pipeline_xgb, param_grid_xgb, X_train, X_test
 # Train and evaluate MLP Regressor
 pipeline_mlp = Pipeline([
     ('preprocessor', preprocessor),
-    ('regressor', MLPRegressor(hidden_layer_sizes=(100, 50), max_iter=4000,
+    ('regressor', MLPRegressor(hidden_layer_sizes=(100, 50), max_iter=2000,
                                random_state=42, early_stopping=True))
 ])
 pipeline_mlp.fit(X_train, y_train)
@@ -206,11 +224,11 @@ param_grid_mlp = {
     'regressor__hidden_layer_sizes': [(100,), (50, 50), (100, 50, 25)],  # Architecture (layers and neurons)
     'regressor__activation': ['relu', 'tanh'],                          # Activation functions
     'regressor__solver': ['adam', 'lbfgs'],                             # Optimization algorithm
-    'regressor__alpha': [0.00001, 0.0001, 0.001, 0.01],                          # L2 regularization (weight decay)
-    'regressor__learning_rate_init': [0.0001,0.001, 0.01],                     # Initial learning rate
+    'regressor__alpha': [0.0001, 0.001, 0.01],                          # L2 regularization (weight decay)
+    'regressor__learning_rate_init': [0.001, 0.01],                     # Initial learning rate
     'regressor__learning_rate': ['constant', 'adaptive'],              # Learning rate schedule
     'regressor__early_stopping': [True],                                # To avoid overfitting
-    'regressor__max_iter': [10000]                                  # Max epochs
+    'regressor__max_iter': [10000]                                       # Max epochs
 }
 tune_and_evaluate_model("MLP Regressor", pipeline_mlp, param_grid_mlp, X_train, X_test, y_train, y_test, 'cyan')
 
