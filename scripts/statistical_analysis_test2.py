@@ -152,9 +152,12 @@ pipeline_rf = Pipeline([
 pipeline_rf.fit(X_train, y_train)
 evaluate_model("Random Forest", pipeline_rf, X_test, y_test, 'green')
 param_grid_rf = {
-    'regressor__n_estimators': [100, 200],
-    'regressor__max_depth': [None, 10, 20],
-    'regressor__min_samples_split': [2, 5]
+    'regressor__n_estimators': [100, 200, 300],                   # Number of trees in the forest
+    'regressor__max_depth': [None, 10, 20, 30],                   # Max depth of each tree
+    'regressor__min_samples_split': [2, 5, 10],                   # Minimum samples required to split a node
+    'regressor__min_samples_leaf': [1, 2, 4],                     # Minimum samples at a leaf node
+    'regressor__max_features': ['auto', 'sqrt', 'log2'],         # Number of features considered at each split
+    'regressor__bootstrap': [True, False]                         # Whether bootstrap samples are used
 }
 tune_and_evaluate_model("Random Forest", pipeline_rf, param_grid_rf, X_train, X_test, y_train, y_test, 'green')
 
@@ -166,9 +169,10 @@ pipeline_gb = Pipeline([
 pipeline_gb.fit(X_train, y_train)
 evaluate_model("Gradient Boosting", pipeline_gb, X_test, y_test, 'orange')
 param_grid_gb = {
-    'regressor__n_estimators': [100, 200],
-    'regressor__learning_rate': [0.05, 0.1],
-    'regressor__max_depth': [3, 5]
+    'regressor__n_estimators': [100, 200, 300],         # Number of boosting stages
+    'regressor__learning_rate': [0.01, 0.05, 0.1],      # Shrinks contribution of each tree
+    'regressor__max_depth': [3, 5, 7, 11],                  # Max depth of individual trees
+    'regressor__max_features': ['auto', 'sqrt', 'log2'] # Features considered per split
 }
 tune_and_evaluate_model("Gradient Boosting", pipeline_gb, param_grid_gb, X_train, X_test, y_train, y_test, 'orange')
 
@@ -182,22 +186,31 @@ evaluate_model("XGBoost", pipeline_xgb, X_test, y_test, 'purple')
 param_grid_xgb = {
     'regressor__n_estimators': [100, 200],
     'regressor__learning_rate': [0.05, 0.1],
-    'regressor__max_depth': [3, 5]
+    'regressor__max_depth': [3, 5, 7, 11],
+    'regressor__gamma': [0, 0.1, 0.2],                  # Minimum loss reduction for split
+    'regressor__reg_alpha': [0, 0.1, 1],                # L1 regularization term
+    'regressor__reg_lambda': [1, 1.5, 2]                # L2 regularization term
 }
+
 tune_and_evaluate_model("XGBoost", pipeline_xgb, param_grid_xgb, X_train, X_test, y_train, y_test, 'purple')
 
 # Train and evaluate MLP Regressor
 pipeline_mlp = Pipeline([
     ('preprocessor', preprocessor),
-    ('regressor', MLPRegressor(hidden_layer_sizes=(100, 50), max_iter=1000,
+    ('regressor', MLPRegressor(hidden_layer_sizes=(100, 50), max_iter=4000,
                                random_state=42, early_stopping=True))
 ])
 pipeline_mlp.fit(X_train, y_train)
 evaluate_model("MLP Regressor", pipeline_mlp, X_test, y_test, 'cyan')
 param_grid_mlp = {
-    'regressor__hidden_layer_sizes': [(100,), (50, 50)],
-    'regressor__alpha': [0.0001, 0.001],
-    'regressor__learning_rate_init': [0.001, 0.01]
+    'regressor__hidden_layer_sizes': [(100,), (50, 50), (100, 50, 25)],  # Architecture (layers and neurons)
+    'regressor__activation': ['relu', 'tanh'],                          # Activation functions
+    'regressor__solver': ['adam', 'lbfgs'],                             # Optimization algorithm
+    'regressor__alpha': [0.00001, 0.0001, 0.001, 0.01],                          # L2 regularization (weight decay)
+    'regressor__learning_rate_init': [0.0001,0.001, 0.01],                     # Initial learning rate
+    'regressor__learning_rate': ['constant', 'adaptive'],              # Learning rate schedule
+    'regressor__early_stopping': [True],                                # To avoid overfitting
+    'regressor__max_iter': [10000]                                  # Max epochs
 }
 tune_and_evaluate_model("MLP Regressor", pipeline_mlp, param_grid_mlp, X_train, X_test, y_train, y_test, 'cyan')
 
@@ -330,8 +343,8 @@ def impute_missing_consumption(df, model_results, trained_pipelines):
 df_imputed = impute_missing_consumption(auto_df, model_results_after_tuning, trained_pipelines)
 
 # Save completed dataset
-df_imputed.to_csv("../Data/imputed_output.csv", sep=";", index=False)
-print("Imputed dataset saved to 'imputed_output.csv'.")
+# df_imputed.to_csv("../Data/imputed_output.csv", sep=";", index=False)
+# print("Imputed dataset saved to 'imputed_output.csv'.")
 
 
 
