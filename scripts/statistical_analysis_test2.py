@@ -10,6 +10,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
+from sklearn.impute import SimpleImputer
 
 # Load the data
 auto_df = pd.read_csv("../Data/transformed_output.csv", sep=";")
@@ -18,8 +19,9 @@ auto_df = pd.read_csv("../Data/transformed_output.csv", sep=";")
 df_filtered = auto_df[auto_df['Consumption'].notnull()].copy()
 
 # Feature engineering: calculate car age from YearMonth to numeric value
-reference_date = pd.to_datetime("2024-01-01")
+reference_date = pd.to_datetime("2025-01-01")
 df_filtered['car_age'] = (reference_date - pd.to_datetime(df_filtered['YearMonth'])).dt.days / 365
+auto_df['car_age'] = (reference_date - pd.to_datetime(auto_df['YearMonth'])).dt.days / 365
 
 # Select features and target
 features = ['Brand', 'Model', 'Kilometer', 'Power_PS', 'Fuel_Type', 'Gear_Type', 'car_age']
@@ -263,9 +265,45 @@ for bar in r2_bars_after:
 plt.tight_layout()
 plt.show()
 
+print(model_results_after_tuning)
+
 # Recommendation: Use the best model (lowest RMSE, highest R²) for imputing missing Consumption values.
 
+trained_pipelines = {
+    'Ridge Regression': pipeline_ridge,
+    'Random Forest': pipeline_rf,
+    'Gradient Boosting': pipeline_gb,
+    'XGBoost': pipeline_xgb,
+    'MLP Regressor': pipeline_mlp
+}
 
+def impute_missing_consumption(df, model_results, trained_pipelines):
+    df_missing = df[df['Consumption'].isnull()].copy()
+    X_missing_raw = df_missing[features]
+
+    # Impute missing values in X_missing if any
+    imputer = SimpleImputer(strategy='mean')
+    df_missing[numeric_features] = imputer.fit_transform(df_missing[numeric_features])
+
+    X_missing = df_missing[features]
+
+    sorted_models = sorted(model_results.items(), key=lambda x: (x[1][0], -x[1][1]))
+    best_model_name = sorted_models[0][0]
+
+    best_pipeline = trained_pipelines[best_model_name]
+
+    predicted_consumption = best_pipeline.predict(X_missing)
+    df.loc[df['Consumption'].isnull(), 'Consumption'] = predicted_consumption
+
+    print(f"Missing Consumption values imputed using {best_model_name}.")
+    return df
+
+# Apply the function
+df_imputed = impute_missing_consumption(auto_df, model_results_after_tuning, trained_pipelines)
+
+# Save completed dataset
+df_imputed.to_csv("../Data/imputed_output.csv", sep=";", index=False)
+print("Imputed dataset saved to 'imputed_output.csv'.")
 
 
 
