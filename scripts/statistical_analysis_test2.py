@@ -282,6 +282,12 @@ def impute_missing_consumption(df, model_results, trained_pipelines):
     X_missing_raw = df_missing[features]
 
     # Impute missing values in X_missing if any
+    # Explanation: Why SimpleImputer was necessary:
+    # Before predicting the missing "Consumption" values, the features (X_missing) may contain NaNs in columns such as "Power_PS" or "Kilometer".
+    # Many models like MLPRegressor, Ridge, and RandomForest do not support NaNs in the input data.
+    # SimpleImputer fills these NaNs (in numeric features) with the mean of each column, ensuring clean data.
+    # This allows models to make valid predictions without errors, enabling us to impute the missing target values (Consumption).
+    # Reference: https://scikit-learn.org/stable/modules/impute.html
     imputer = SimpleImputer(strategy='mean')
     df_missing[numeric_features] = imputer.fit_transform(df_missing[numeric_features])
 
