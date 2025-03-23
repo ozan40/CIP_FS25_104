@@ -31,14 +31,37 @@ X = df_filtered[features]
 y = df_filtered[target]
 
 # Split into categorical and numeric features for preprocessing
-categorical_features = ['Brand', 'Model', 'Fuel_Type', 'Gear_Type']
-numeric_features = ['Kilometer', 'Power_PS', 'car_age']
+# categorical_features = ['Brand', 'Model', 'Fuel_Type', 'Gear_Type']
+# numeric_features = ['Kilometer', 'Power_PS', 'car_age']
+
+column_types = {
+    'Brand':'category',
+    'Model':'category',
+    'Fuel_Type':'category',
+    'Gear_Type':'category',
+    'Kilometer':'numeric',
+    'Power_PS': 'numeric',
+    'car_age':'numeric'
+}
+
+columns_to_scale = [key for key in column_types.keys() if column_types[key] == 'numeric']
+columns_to_encode = [key for key in column_types.keys() if column_types[key] == 'category']
+
+numeric_transformer = Pipeline(steps=[
+    ("imputer",SimpleImputer(strategy='median')),
+    ('scaler',StandardScaler())
+])
+
+categorical_transformer = Pipeline([
+    ("imputer",SimpleImputer(strategy='constant', fill_value = 'missing')),
+    ('onehot',OneHotEncoder(handle_unknown = 'ignore'))
+])
 
 # Preprocessing pipeline with scaling and encoding
 preprocessor = ColumnTransformer(
     transformers=[
-        ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features),
-        ('num', StandardScaler(), numeric_features)
+        ('cat', categorical_transformer, columns_to_encode),
+        ('num', numeric_transformer, columns_to_scale)
     ])
 
 # Split the data
@@ -288,8 +311,7 @@ def impute_missing_consumption(df, model_results, trained_pipelines):
     # SimpleImputer fills these NaNs (in numeric features) with the mean of each column, ensuring clean data.
     # This allows models to make valid predictions without errors, enabling us to impute the missing target values (Consumption).
     # Reference: https://scikit-learn.org/stable/modules/impute.html
-    imputer = SimpleImputer(strategy='mean')
-    df_missing[numeric_features] = imputer.fit_transform(df_missing[numeric_features])
+
 
     X_missing = df_missing[features]
 
