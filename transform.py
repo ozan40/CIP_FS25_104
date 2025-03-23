@@ -26,5 +26,5 @@ if __name__ == "__main__":
     print(outlier_information)
     print(enriched_df.dtypes)
 
-    #enriched_df.to_csv("Data/transformed_output.csv", sep=";")
+    enriched_df.to_csv("Data/transformed_output.csv", sep=";")
 
