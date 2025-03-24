@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 from sklearn.impute import SimpleImputer
+import seaborn as sns
+import shap
+
 
 # Load the data
 auto_df = pd.read_csv("../Data/transformed_output.csv", sep=";")
@@ -102,7 +105,7 @@ def tune_and_evaluate_model(name, pipeline, param_grid, X_train, X_test, y_train
     print(f"RMSE: {rmse_before:.2f} L/100km, R²: {r2_before:.2f}")
 
     # Grid Search
-    grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='neg_root_mean_squared_error', n_jobs=2)
+    grid_search = GridSearchCV(pipeline, param_grid, cv=3, scoring='neg_root_mean_squared_error', n_jobs=-1)
     grid_search.fit(X_train, y_train)
 
     print(f"Best Parameters ({name}):")
@@ -354,14 +357,165 @@ def impute_missing_consumption(df, model_results, trained_pipelines):
 df_imputed = impute_missing_consumption(auto_df, model_results_after_tuning, trained_pipelines)
 
 # Save completed dataset
-df_imputed.to_csv("../Data/imputed_output.csv", sep=";", index=False)
-print("Imputed dataset saved to 'imputed_output.csv'.")
+# df_imputed.to_csv("../Data/imputed_output.csv", sep=";", index=False)
+# print("Imputed dataset saved to 'imputed_output.csv'.")
+#######################################################################################################################
+# Model Comparison: Before and After Hyperparameter Tuning
+# Plot 1: Model Performance Before Tuning
+# This plot shows the performance of five different models before any optimization:
+#
+# Random Forest and XGBoost already show strong performance with low RMSE (0.31 and 0.51 respectively) and high R² scores (0.96 and 0.88).
+#
+# Ridge Regression and Gradient Boosting have higher RMSE values (0.67 and 0.71) and lower R² scores (0.80 and 0.78),
+# suggesting underfitting or less flexibility in modeling the data.
+#
+# The MLP Regressor is in the mid-range, performing better than Ridge but worse than tree-based models.
+#
+# Interpretation:
+# Tree-based models, especially Random Forest and XGBoost, handle non-linearities and feature interactions more effectively,
+# which explains their superior performance even before tuning. Reference: [Hastie et al., 2009 – "The Elements of Statistical Learning"].
+#
+# Plot 2: Model Performance After Tuning
+# After applying GridSearchCV and hyperparameter tuning:
+#
+# XGBoost improves to RMSE 0.26 and R² 0.97, becoming the best overall model.
+#
+# Random Forest also improves slightly to RMSE 0.28, R² 0.97, closely following XGBoost.
+#
+# Gradient Boosting shows improvement but remains behind (RMSE 0.31, R² 0.96).
+#
+# MLP Regressor shows marginal improvement and remains less competitive (RMSE 0.55, R² 0.86).
+#
+# Ridge Regression does not improve after tuning, confirming its limited capacity for modeling complex relationships.
+#
+# Conclusion:
+# Hyperparameter tuning significantly enhanced model performance, especially for XGBoost and Gradient Boosting,
+# confirming the value of model optimization. The reduction in RMSE and increase in R² indicate better prediction accuracy and fit to the data.
+#
+# Transition to Feature Importance Analysis
+# Given the strong performance of XGBoost and Random Forest, we now shift our focus to understanding why these models perform well.
+#
+# ➡️ Both models allow extraction of feature importances, which help explain which features most influence the prediction of fuel consumption.
+# Understanding feature contributions supports interpretability, transparency,
+# and trust in model predictions – especially important in real-world applications (e.g., automotive efficiency, policy decisions).
+#
+# We will now explore feature importance and SHAP values to analyze the internal decision logic of XGBoost and
+# Random Forest, following best practices in explainable AI.
+# Reference: Lundberg & Lee (2017), "A Unified Approach to Interpreting Model Predictions"; Breiman (2001), "Random Forests".
+#
+# Let’s dive into feature importance analysis.
+########################################################################################################################
 
 
+# --- Feature Importance from Random Forest ---
+# Extract feature names after preprocessing
+ohe = pipeline_rf.named_steps['preprocessor'].named_transformers_['cat'].named_steps['onehot']
+encoded_cat_features = ohe.get_feature_names_out(columns_to_encode)
+all_feature_names = np.concatenate([encoded_cat_features, columns_to_scale])
+
+# Extract importances
+importances = pipeline_rf.named_steps['regressor'].feature_importances_
+
+# Create DataFrame
+feature_importance_df = pd.DataFrame({
+    'Feature': all_feature_names,
+    'Importance': importances
+}).sort_values(by='Importance', ascending=False)
+
+# Visualize Top 10 Features
+plt.figure(figsize=(10, 6))
+sns.barplot(data=feature_importance_df.head(10), x='Importance', y='Feature', palette='viridis')
+plt.title('Top 10 Feature Importances (Random Forest)')
+plt.tight_layout()
+plt.show()
+
+# Interpretation:
+# 1. Power_PS (engine power) has the highest importance, indicating it has the strongest influence on fuel consumption.
+# 2. car_age (vehicle age) follows, showing older cars typically consume more fuel due to wear and lower efficiency.
+# 3. Kilometer (mileage) has moderate importance, reflecting its relation to vehicle wear.
+# 4. Fuel_Type (Diesel, Benzin) and specific Models contribute to variance in consumption, but less than technical numeric features.
+# Source: Zacharof et al. (2016), European Commission; T&E Report (2018); Scikit-learn feature_importance documentation.
+
+# Note: Feature importances in Random Forest help explain model decisions and can guide feature selection and model interpretability.
 
 
+# --- Feature Importance from Random Forest ---
+# Extract feature names after preprocessing
+ohe = pipeline_xgb.named_steps['preprocessor'].named_transformers_['cat'].named_steps['onehot']
+encoded_cat_features = ohe.get_feature_names_out(columns_to_encode)
+all_feature_names = np.concatenate([encoded_cat_features, columns_to_scale])
+# 1. Extrahiere One-Hot-Encoded Feature-Namen
+ohe_feature_names = pipeline_xgb.named_steps['preprocessor'] \
+    .named_transformers_['cat'] \
+    .named_steps['onehot'] \
+    .get_feature_names_out(columns_to_encode)
+
+# 2. Kombiniere mit numerischen Features (die nur skaliert wurden)
+preprocessed_feature_names = list(ohe_feature_names) + columns_to_scale
+
+# Extract importances
+importances = pipeline_xgb.named_steps['regressor'].feature_importances_
+
+# Create DataFrame
+feature_importance_df_xgb = pd.DataFrame({
+    'Feature': all_feature_names,
+    'Importance': importances
+}).sort_values(by='Importance', ascending=False)
+
+# Visualize Top 10 Features
+plt.figure(figsize=(10, 6))
+sns.barplot(data=feature_importance_df_xgb.head(10), x='Importance', y='Feature', palette='viridis')
+plt.title('Top 10 Feature Importances (XGBoost)')
+plt.tight_layout()
+plt.show()
+
+# Interpretation (XGBoost Feature Importances):
+# 1. The most influential feature is Model_218, followed by other specific vehicle models (Model_118, Model_116).
+#    → This suggests that particular car models significantly influence fuel consumption predictions.
+# 2. Power_PS and Fuel_Type_Diesel are also important, indicating that engine power and fuel type (Diesel) are critical factors.
+# 3. Brand_Land Rover and Model_Sprinter indicate brand/model-specific consumption trends.
+# 4. car_age and Kilometer are present but less influential than in Random Forest, showing XGBoost relies more on categorical encodings.
+#
+# Reasoning:
+# - XGBoost can capture complex interactions between categorical variables (e.g., Model, Brand) and numerical ones.
+# - Feature importance in XGBoost is calculated based on the number of times a feature is used to split the data across all trees, weighted by the improvement in performance.
+#
+# Reference: Chen & Guestrin (2016), XGBoost: A Scalable Tree Boosting System; https://xgboost.readthedocs.io/en/stable/python/python_api.html#xgboost.XGBRegressor.feature_importances_
 
 
+# SHAP für XGBoost
+# Hintergrund: SHAP (SHapley Additive exPlanations) quantifiziert den Beitrag jedes Features zur Vorhersage.
+# Quelle: Lundberg & Lee (2017). A Unified Approach to Interpreting Model Predictions.
+
+# 1. Datentransformation durch den Preprocessor (ohne Target-Spalte)
+X_transformed = preprocessor.transform(X_test)
+
+# 2. Zugriff auf das trainierte XGBoost Modell
+xgb_model = pipeline_xgb.named_steps['regressor']
+
+# 3. SHAP-Explainer initialisieren (TreeExplainer ideal für XGBoost)
+explainer = shap.Explainer(xgb_model)
+
+# 4. SHAP-Werte berechnen (einige Stichproben für Performance)
+shap_values = explainer(X_transformed[:100])
+
+# 5. SHAP Summary Plot anzeigen (wichtigste Features visuell darstellen)
+shap.summary_plot(shap_values, X_transformed[:100], feature_names=preprocessed_feature_names)
+
+# SHAP Interpretation for XGBoost:
+# - Power_PS (engine power) shows the highest SHAP impact, indicating a strong influence on the predicted fuel consumption.
+#   Higher Power_PS values generally increase fuel consumption (SHAP value > 0).
+# - Fuel_Type_Diesel and Fuel_Type_Benzin significantly influence the model’s output.
+#   Diesel vehicles tend to have negative SHAP values, indicating lower predicted consumption, aligning with known fuel efficiency trends.
+# - car_age and Kilometer show moderate influence.
+#   Older cars (high car_age) and higher mileage (Kilometer) are linked to higher consumption predictions.
+# - Model and Brand features (e.g., Model_Ranger, Brand_BMW) also contribute but with varied influence depending on vehicle type.
+
+# Reasoning:
+# SHAP values help interpret the contribution of each feature to individual predictions, ensuring model transparency.
+# Unlike feature_importance in Random Forest/XGBoost, SHAP captures both feature importance and direction (positive/negative impact).
+# Reference: Lundberg & Lee (2017), "A Unified Approach to Interpreting Model Predictions" (https://arxiv.org/abs/1705.07874)
+# Benefit: SHAP plots validate feature importances seen in other models (e.g., Random Forest), increasing confidence in model insights.
 
 
 
