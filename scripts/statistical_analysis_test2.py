@@ -69,9 +69,6 @@ preprocessor = ColumnTransformer(
 # Split the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Add this scorer outside function
-rmse_scorer = make_scorer(mean_squared_error, squared=False)
-cv_strategy = KFold(n_splits=5, shuffle=True, random_state=42)
 
 # Store performance results
 model_results_before_tuning = {}
@@ -105,7 +102,7 @@ def tune_and_evaluate_model(name, pipeline, param_grid, X_train, X_test, y_train
     print(f"RMSE: {rmse_before:.2f} L/100km, R²: {r2_before:.2f}")
 
     # Grid Search
-    grid_search = GridSearchCV(pipeline, param_grid, cv=3, scoring='neg_root_mean_squared_error', n_jobs=-1)
+    grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='neg_root_mean_squared_error', n_jobs=2)
     grid_search.fit(X_train, y_train)
 
     print(f"Best Parameters ({name}):")
@@ -215,20 +212,16 @@ tune_and_evaluate_model("XGBoost", pipeline_xgb, param_grid_xgb, X_train, X_test
 # Train and evaluate MLP Regressor
 pipeline_mlp = Pipeline([
     ('preprocessor', preprocessor),
-    ('regressor', MLPRegressor(hidden_layer_sizes=(100, 50), max_iter=2000,
-                               random_state=42, early_stopping=True))
+    ('regressor', MLPRegressor(max_iter=500, random_state=42))
 ])
 pipeline_mlp.fit(X_train, y_train)
 evaluate_model("MLP Regressor", pipeline_mlp, X_test, y_test, 'cyan')
 param_grid_mlp = {
-    'regressor__hidden_layer_sizes': [(100,), (50, 50), (100, 50, 25)],  # Architecture (layers and neurons)
-    'regressor__activation': ['relu', 'tanh'],                          # Activation functions
-    'regressor__solver': ['adam', 'lbfgs'],                             # Optimization algorithm
-    'regressor__alpha': [0.0001, 0.001, 0.01],                          # L2 regularization (weight decay)
-    'regressor__learning_rate_init': [0.001, 0.01],                     # Initial learning rate
-    'regressor__learning_rate': ['constant', 'adaptive'],              # Learning rate schedule
-    'regressor__early_stopping': [True],                                # To avoid overfitting
-    'regressor__max_iter': [10000]                                       # Max epochs
+    'regressor__hidden_layer_sizes': [(100,), (50, 50), (100, 50, 25)],       # Architecture (layers and neurons)
+    'regressor__activation': ['relu', 'tanh'],          # Activation functions
+    'regressor__solver': ['adam','sgd'],                             # Optimization algorithm
+    'regressor__learning_rate': ['constant','adaptive'],              # Learning rate schedule
+    'regressor__early_stopping': [True]                                # To avoid overfitting
 }
 tune_and_evaluate_model("MLP Regressor", pipeline_mlp, param_grid_mlp, X_train, X_test, y_train, y_test, 'cyan')
 
@@ -361,8 +354,8 @@ def impute_missing_consumption(df, model_results, trained_pipelines):
 df_imputed = impute_missing_consumption(auto_df, model_results_after_tuning, trained_pipelines)
 
 # Save completed dataset
-# df_imputed.to_csv("../Data/imputed_output.csv", sep=";", index=False)
-# print("Imputed dataset saved to 'imputed_output.csv'.")
+df_imputed.to_csv("../Data/imputed_output.csv", sep=";", index=False)
+print("Imputed dataset saved to 'imputed_output.csv'.")
 
 
 
