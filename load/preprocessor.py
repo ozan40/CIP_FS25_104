@@ -35,9 +35,10 @@ class PreprocessorBuilder:
             ('onehot', OneHotEncoder(handle_unknown='ignore'))
         ])
 
-        preprocessor = ColumnTransformer([
-            ('cat', categorical_transformer, columns_to_encode),
-            ('num', numeric_transformer, columns_to_scale)
-        ])
+        preprocessor = ColumnTransformer(
+            transformers=[
+                ('cat', categorical_transformer, columns_to_encode),
+                ('num', numeric_transformer, columns_to_scale)
+            ])
 
         return preprocessor, columns_to_encode, columns_to_scale
