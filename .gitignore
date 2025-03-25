@@ -9,7 +9,8 @@ Data/transformed_output.csv
 
 # __pycache__-Ordner ignorieren (automatisch generiert von Python)
 crawler/__pycache__/
-
+transform/__pycache__/
+*.pyc
 # Virtuelle Umgebungen ignorieren
 venv/
 .env/
