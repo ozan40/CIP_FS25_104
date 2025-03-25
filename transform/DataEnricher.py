@@ -10,13 +10,12 @@ class DataEnricher:
         self.df["Price_per_km"] = self.df["cleaned_Price"] / self.df["Kilometer"]
 
         # Kraftstoffpreise definieren
-<<<<<<< HEAD
+
         # Quellen:
         # Benzin/Diesel: SWR (https://www.swr.de/swraktuell/diesel-und-benzinpreise-aktuell)
         # Elektro: ADAC (https://www.adac.de/rund-ums-fahrzeug/auto-kaufen-verkaufen/autokosten/elektroauto-kostenvergleich/)
         # LPG/CNG: DA Direkt (https://www.da-direkt.de/elektroauto-versicherung/ratgeber/autogas-lpg)
-=======
->>>>>>> Ozan
+
         fuel_prices = {
             "Benzin": 1.77, "Diesel": 1.65, "Elektro": 0.414, "Autogas (LPG)": 0.229,
             "Erdgas (CNG)": 1.20, "Elektro/Benzin": 1.50, "Elektro/Diesel": 1.40
@@ -31,10 +30,9 @@ class DataEnricher:
         self.df["Annual_Fuel_Cost"] = round(self.df["Fuel_Cost_per_100km"] * (18507.456 / 100),2)
 
         # CO2-Emissionen pro Jahr berechnen
-<<<<<<< HEAD
+
         # Quelle: EPA - https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle
-=======
->>>>>>> Ozan
+
         self.df["CO2_per_year"] = round(self.df["CO2_Emission"] * (18507.456 / 1000),2)
         average_co2_per_year = 4600  # 4.6 metric tons (4600 kg)
 
@@ -86,9 +84,5 @@ class DataEnricher:
                 category = pd.CategoricalDtype(ordered_cats[col], ordered=True)
                 self.enriched_df[col] = self.enriched_df[col].astype(category)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> Ozan
         return self.enriched_df
 
