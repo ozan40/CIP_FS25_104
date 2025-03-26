@@ -1,3 +1,5 @@
+import pandas as pd
+
 class ConsumptionImputer:
     def __init__(self, best_pipeline, features):
         self.pipeline = best_pipeline

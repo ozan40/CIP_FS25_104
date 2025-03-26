@@ -31,6 +31,9 @@ if __name__ == "__main__":
     # calling ModelTrainer() classes to build and train models
     trainer = load.ModelTrainer(X, y, preprocessor)
 
+    # get train and testdata
+    X_train, X_test, y_train, y_test = trainer.get_train_test_data()
+
     # Add Ridge Regression incl. parameter tuning
     trainer.add_model(
         "Ridge Regression", Ridge(),
@@ -99,5 +102,15 @@ if __name__ == "__main__":
     trainer.plot_results(after_tuning = False)
     trainer.plot_results(after_tuning = True)
 
+    # get best_model_name and best_pipeline
+    best_model_name, best_pipeline = trainer.get_best_model()
+
     # calling FeatureImportancePlotter to plot results
-    analyzer = load.FeatureImportancePlotter()
+    analyzer = load.FeatureImportanceAnalyzer(best_model_name, best_pipeline, columns_to_encode, columns_to_scale)
+    analyzer.plot_feature_importance(X_test)
+
+    # Calling ConsumptionImputer class
+    imputer = load.ConsumptionImputer(best_pipeline, features)
+    imputed_df = imputer.impute(data_frame)
+    
+    imputed_df.to_csv("Data/imputed_output.csv", sep = ";")

@@ -15,6 +15,9 @@ class ModelTrainer:
         self.results_before = {}
         self.results_after = {}
 
+    def get_train_test_data(self):
+        return self.X_train, self.X_test, self.y_train, self.y_test
+
     def add_model(self, name, regressor, param_grid, color):
         pipeline = Pipeline([
             ('preprocessor', self.preprocessor),
@@ -106,3 +109,13 @@ class ModelTrainer:
 
         plt.tight_layout()
         plt.show()
+
+    def get_best_model(self):
+        # Sortieren nach kleinstem RMSE und größtem R²
+        sorted_models = sorted(
+            self.results_after.items(),
+            key=lambda x: (x[1][0], -x[1][1])  # (RMSE ↑, R² ↓)
+        )
+        best_model_name = sorted_models[0][0]
+        best_pipeline = self.trained_pipelines[best_model_name]
+        return best_model_name, best_pipeline
