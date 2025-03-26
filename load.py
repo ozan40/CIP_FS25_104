@@ -1,19 +1,9 @@
-import pandas as pd
-import numpy as np
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, KFold
-from sklearn.linear_model import LinearRegression, Ridge
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import mean_squared_error, r2_score, make_scorer
-import matplotlib.pyplot as plt
+from sklearn.linear_model import Lasso, Ridge
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
-from sklearn.impute import SimpleImputer
-import seaborn as sns
-import shap
-
+from sklearn.svm import SVR
 
 import load
 
@@ -43,6 +33,15 @@ if __name__ == "__main__":
         "blue"
     )
 
+    # Add Lasso Regression incl. parameter tuning
+    trainer.add_model(
+        "Lasso", Lasso(),
+        {
+            'regressor__alpha': [0.001, 0.01, 0.1, 1.0]
+        },
+        "gray"
+    )
+
     # Add Random Forest Regression incl. parameter tuning
     trainer.add_model(
         "Random Forest", RandomForestRegressor(n_estimators = 100, random_state = 42),
@@ -57,6 +56,16 @@ if __name__ == "__main__":
         'green'
     )
 
+    # Add Random Forest Regression incl. parameter tuning
+    trainer.add_model(
+        "KNN", KNeighborsRegressor(),
+        {
+            'regressor__n_neighbors': [3, 5, 10],
+            'regressor__weights': ['uniform', 'distance']
+        },
+        "brown"
+    )
+
     # add Gradient Boosting incl. parameter tuning
     trainer.add_model(
         "Gradient Boosting", GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42),
@@ -67,6 +76,18 @@ if __name__ == "__main__":
             'regressor__max_features': ['auto', 'sqrt', 'log2']  # Features considered per split
         },
         'orange'
+    )
+
+    # add SVR incl. parameter tuning
+    trainer.add_model(
+        "SVR", SVR(),
+        {
+            'regressor__kernel': ['rbf', 'linear'],  # Kernel types: radial basis function & linear
+            'regressor__C': [0.1, 1, 10],  # Regularization parameter
+            'regressor__epsilon': [0.01, 0.1, 0.2],  # Tolerance for error margin
+            'regressor__gamma': ['scale', 'auto']  # Kernel coefficient
+        },
+        "darkred"
     )
 
     # add XGBoost incl. parameter tuning
@@ -107,10 +128,11 @@ if __name__ == "__main__":
 
     # calling FeatureImportancePlotter to plot results
     analyzer = load.FeatureImportanceAnalyzer(best_model_name, best_pipeline, columns_to_encode, columns_to_scale)
-    analyzer.plot_feature_importance(X_test)
+    analyzer.plot_feature_importance()
+    analyzer.shap_analysis(X_test)
 
     # Calling ConsumptionImputer class
     imputer = load.ConsumptionImputer(best_pipeline, features)
     imputed_df = imputer.impute(data_frame)
 
-    imputed_df.to_csv("Data/imputed_output.csv", sep = ";")
+#    imputed_df.to_csv("Data/imputed_output.csv", sep = ";")
