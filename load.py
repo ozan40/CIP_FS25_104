@@ -98,3 +98,5 @@ if __name__ == "__main__":
     # visualisation
     trainer.plot_results(after_tuning = False)
     trainer.plot_results(after_tuning = True)
+
+    # calling F
