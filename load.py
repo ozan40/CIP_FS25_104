@@ -112,5 +112,5 @@ if __name__ == "__main__":
     # Calling ConsumptionImputer class
     imputer = load.ConsumptionImputer(best_pipeline, features)
     imputed_df = imputer.impute(data_frame)
-    
+
     imputed_df.to_csv("Data/imputed_output.csv", sep = ";")
