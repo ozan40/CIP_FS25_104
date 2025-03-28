@@ -3,8 +3,9 @@ import csv
 
 class CrawledCar():
     # Konstruktur initialisieren und brand, model, description, price, kilometer, gear, year, fuel, hp, etc. übergeben
-    def __init__(self, brand, model, car_info, user_text, price, price_evaluation, km, gear, date, fuel, power,
-                 consumption, co2):
+    def __init__(self, brand = None, model= None, car_info= None, user_text= None, price= None, price_evaluation= None,
+                 km= None, gear= None, date= None, fuel= None, power= None,
+                 consumption= None, co2= None):
         self.brand = brand
         self.model = model
         self.car_info = car_info
