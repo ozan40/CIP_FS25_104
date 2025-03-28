@@ -75,11 +75,8 @@ class CarsFetcher():
 
     def fetch(self):
         cars_element = []
-<<<<<<< HEAD
         first_registration = np.arange(2010, 2023, 1)
-=======
         first_registration = np.arange(2010, 2018, 1)
->>>>>>> origin/main
         pages = np.arange(1, 20, 1)
 
         for registration in first_registration:
