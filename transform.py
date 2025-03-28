@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
     # load data
     car_df = pd.read_csv("Data/autoscout_data.csv", sep=";")
-    car_df = pd.read_csv("crawled_output.csv", sep=";")
+
 
 
     # clean Data
