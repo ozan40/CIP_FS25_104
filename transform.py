@@ -9,12 +9,10 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     # load data
-    car_df = pd.read_csv("Data/autoscout_data.csv", sep=";")
-
-
+    autoscout_df = pd.read_csv("Data/autoscout_data.csv", sep=";")
 
     # clean Data
-    cleaner = transform.DataCleaner(car_df)
+    cleaner = transform.DataCleaner(autoscout_df)
     cleaned_df = cleaner.cleaned_categorical_values()
     missing_val, msno_visual = cleaner.missing_values(cleaned_df)
     outlier_information = cleaner.detect_outliers()
@@ -33,4 +31,5 @@ if __name__ == "__main__":
     print(enriched_missing_val)
     print(enriched_msno_visual)
     #enriched_df.to_csv("Data/transformed_output.csv", sep=";")
+
 
