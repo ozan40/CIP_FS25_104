@@ -13,7 +13,7 @@ class DataCleaner:
             self.df["Kilometer"] = self.df["Kilometer"].str.replace(" km", "").str.replace(".", "").astype(float)
             self.df["Power_PS"] = self.df["Horsepower"].str.extract(r"\((\d+)\s*PS\)").astype(float)
             self.df["Consumption"] = self.df["Consumption"].str.replace(" l/100 km", "").str.replace(",", ".").astype(
-                float)
+                int)
             self.df["CO2_Emission"] = self.df["CO2_Emission"].str.replace(" g/km", "").astype(float)
             self.df["YearMonth"] = pd.to_datetime(self.df["YearMonth"], format="%m/%Y")
         except KeyError:

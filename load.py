@@ -120,81 +120,71 @@ if __name__ == "__main__":
     trainer.add_model(
         "Lasso", Lasso(),
         {
-            'regressor__alpha': [0.001, 0.01, 0.1, 1.0]
+            'regressor__alpha': [0.01, 0.1, 1.0]
         },
         "gray"
     )
 
     # Add Random Forest Regression incl. parameter tuning
     trainer.add_model(
-        "Random Forest", RandomForestRegressor(n_estimators = 100, random_state = 42),
+        "Random Forest", RandomForestRegressor(random_state=42),
         {
-            'regressor__n_estimators': [100, 200, 300],  # Number of trees in the forest
-            'regressor__max_depth': [None, 10, 20, 30],  # Max depth of each tree
-            'regressor__min_samples_split': [2, 5, 10],  # Minimum samples required to split a node
-            'regressor__min_samples_leaf': [1, 2, 4],  # Minimum samples at a leaf node
-            'regressor__max_features': ['auto', 'sqrt', 'log2'],  # Number of features considered at each split
-            'regressor__bootstrap': [True, False]  # Whether bootstrap samples are used
+            'regressor__n_estimators': [100],  # Fixierte Baumanzahl
+            'regressor__max_depth': [10, 20],
+            'regressor__min_samples_split': [2, 5]
         },
-        'green'
+        "green"
     )
-
-    # Add Random Forest Regression incl. parameter tuning
+    # Add KNN Regressor incl. parameter tuning
     trainer.add_model(
         "KNN", KNeighborsRegressor(),
         {
-            'regressor__n_neighbors': [3, 5, 10],
-            'regressor__weights': ['uniform', 'distance']
+            'regressor__n_neighbors': [3, 7],
+            'regressor__weights': ['uniform']
         },
         "brown"
     )
 
     # add Gradient Boosting incl. parameter tuning
     trainer.add_model(
-        "Gradient Boosting", GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42),
+        "Gradient Boosting", GradientBoostingRegressor(random_state=42),
         {
-            'regressor__n_estimators': [100, 200, 300],  # Number of boosting stages
-            'regressor__learning_rate': [0.01, 0.05, 0.1],  # Shrinks contribution of each tree
-            'regressor__max_depth': [3, 5, 7, 11],  # Max depth of individual trees
-            'regressor__max_features': ['auto', 'sqrt', 'log2']  # Features considered per split
+            'regressor__n_estimators': [100],
+            'regressor__learning_rate': [0.05, 0.1],
+            'regressor__max_depth': [3, 5]
         },
-        'orange'
+        "orange"
     )
 
     # add SVR incl. parameter tuning
     trainer.add_model(
         "SVR", SVR(),
         {
-            'regressor__kernel': ['rbf', 'linear'],  # Kernel types: radial basis function & linear
-            'regressor__C': [0.1, 1, 10],  # Regularization parameter
-            'regressor__epsilon': [0.01, 0.1, 0.2],  # Tolerance for error margin
-            'regressor__gamma': ['scale', 'auto']  # Kernel coefficient
+            'regressor__kernel': ['rbf'],
+            'regressor__C': [1, 10],
+            'regressor__epsilon': [0.1]
         },
         "darkred"
     )
 
     # add XGBoost incl. parameter tuning
     trainer.add_model(
-        "XGBoost", XGBRegressor(n_estimators=100, learning_rate=0.1, random_state=42, verbosity=0),
+        "XGBoost", XGBRegressor(random_state=42, verbosity=0),
         {
-            'regressor__n_estimators': [100, 200],
-            'regressor__learning_rate': [0.05, 0.1],
-            'regressor__max_depth': [3, 5, 7, 11],
-            'regressor__gamma': [0, 0.1, 0.2],                  # Minimum loss reduction for split
-            'regressor__reg_alpha': [0, 0.1, 1],                # L1 regularization term
-            'regressor__reg_lambda': [1, 1.5, 2]                # L2 regularization term
+            'regressor__n_estimators': [100],
+            'regressor__max_depth': [3, 5],
+            'regressor__learning_rate': [0.05]
         },
         "purple"
     )
 
+    # add MLP Regressor incl. parameter tuning
     trainer.add_model(
         "MLP Regressor", MLPRegressor(max_iter=500, random_state=42),
         {
-            'regressor__hidden_layer_sizes': [(100,), (50, 50), (100, 50, 25)],  # Architecture (layers and neurons)
-            'regressor__activation': ['relu', 'tanh'],  # Activation functions
-            'regressor__solver': ['adam', 'sgd'],  # Optimization algorithm
-            'regressor__learning_rate': ['constant', 'adaptive'],  # Learning rate schedule
-            'regressor__early_stopping': [True]  # To avoid overfitting
+            'regressor__hidden_layer_sizes': [(100,), (50, 50)],
+            'regressor__activation': ['relu'],
+            'regressor__solver': ['adam']
         },
         "cyan"
     )
