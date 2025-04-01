@@ -11,11 +11,21 @@ from webdriver_manager.chrome import ChromeDriverManager
 from urllib.parse import urlencode
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+# --- Helpers ---
+def build_search_url(base_url, filter_dict):
+    return f"{base_url}?{urlencode(filter_dict)}"
+
+def normalize_identifier(data):
+    def clean(x):
+        return x.strip().lower() if isinstance(x, str) else x
+    return tuple(clean(data[k]) for k in ['Brand', 'Model', 'Kilometers', 'CurrentPrice'])
+
+# --- WebAutomation ---
 class WebAutomation:
-    def __init__(self, headless=False):
+    def __init__(self, headless=True):
         options = Options()
         if headless:
-            options.add_argument('--start-maximized')
+            options.add_argument('--headless')
             options.add_argument('--no-sandbox')
             options.add_argument('--disable-dev-shm-usage')
 
@@ -23,9 +33,9 @@ class WebAutomation:
 
     def accept_cookies(self):
         time.sleep(1)
-        cookie_buttons = self.driver.find_elements(By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'zustimmen')]")
-        if cookie_buttons:
-            cookie_buttons[0].click()
+        buttons = self.driver.find_elements(By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'zustimmen')]")
+        if buttons:
+            buttons[0].click()
 
     def zoom_out_css(self, scale=0.75):
         script = f"""
@@ -35,29 +45,34 @@ class WebAutomation:
         """
         self.driver.execute_script(script)
 
-    def slow_scroll(self, scroll_pause_time=0.2, scroll_increment=400):
+    def slow_scroll(self, pause=0.2, increment=400):
         last_height = self.driver.execute_script("return document.body.scrollHeight")
-        current_position = 0
-        while current_position < last_height:
-            self.driver.execute_script(f"window.scrollTo(0, {current_position});")
-            time.sleep(scroll_pause_time)
-            current_position += scroll_increment
+        current = 0
+        while current < last_height:
+            self.driver.execute_script(f"window.scrollTo(0, {current});")
+            time.sleep(pause)
+            current += increment
             last_height = self.driver.execute_script("return document.body.scrollHeight")
 
     def go_to_next_page(self):
         try:
-            next_button = WebDriverWait(self.driver, 5).until(
+            current_url = self.driver.current_url
+            next_btn = WebDriverWait(self.driver, 5).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, 'button.Pagination__goForward___V2fm8'))
             )
-            next_button.click()
+            self.driver.execute_script("arguments[0].scrollIntoView();", next_btn)
+            next_btn.click()
+            WebDriverWait(self.driver, 10).until(EC.url_changes(current_url))
             time.sleep(random.uniform(1.5, 2.5))
             return True
-        except:
+        except Exception as e:
+            print(f"[WARN] Cannot go to next page: {e}")
             return False
 
     def quit(self):
         self.driver.quit()
 
+# --- CarFetcher ---
 class CarFetcher:
     def __init__(self, driver):
         self.driver = driver
@@ -68,46 +83,40 @@ class CarFetcher:
         except:
             return None
 
-    def extract_brand_model(self, brand_model_text):
-        if not brand_model_text:
+    def extract_brand_model(self, text):
+        if not text:
             return None, None
-        words = brand_model_text.split(" ")
+        words = text.split(" ")
         if words[0] in ["Range", "Land"] and len(words) > 1:
-            brand = " ".join(words[:2])
-            model = " ".join(words[2:]) if len(words) > 2 else None
-        else:
-            brand = words[0]
-            model = " ".join(words[1:]) if len(words) > 1 else None
-        return brand, model
+            return " ".join(words[:2]), " ".join(words[2:])
+        return words[0], " ".join(words[1:])
 
     def get_current_price(self, car):
         selector = 'div.VechiclePriceItem__priceItemBuy___EbiJT a.VechiclePriceItem__priceItemPrice___rbTmA span.VehicleFormattedPrice__container___NYXO4 span.FormattedNumber__formattedNumber___iNXv2 span'
-        price_element = car.find_elements(By.CSS_SELECTOR, selector)
-        return price_element[0].text.strip() if price_element else None
+        elements = car.find_elements(By.CSS_SELECTOR, selector)
+        return elements[0].text.strip() if elements else None
 
     def get_car_data(self, car):
-        brand_model_text = self.get_text_or_none(car, 'h4[class*="VehicleTitle__manufacturerModel"]')
-        brand, model = self.extract_brand_model(brand_model_text)
+        brand_model = self.get_text_or_none(car, 'h4[class*="VehicleTitle__manufacturerModel"]')
+        brand, model = self.extract_brand_model(brand_model)
 
-        properties = car.find_elements(By.CSS_SELECTOR, 'div.VehicleProperty__carProp___nBAOW span')
-        km = properties[0].text.strip() if len(properties) > 0 else None
-        build_year = properties[1].text.strip() if len(properties) > 1 else None
-        transmission = properties[2].text.strip() if len(properties) > 2 else None
-        fuel = properties[3].text.strip() if len(properties) > 3 else None
-        power = properties[4].text.strip() if len(properties) > 4 else None
-        raw_consumption_emission = properties[5].text.strip() if len(properties) > 5 else None
+        props = car.find_elements(By.CSS_SELECTOR, 'div.VehicleProperty__carProp___nBAOW span')
+        km = props[0].text.strip() if len(props) > 0 else None
+        build_year = props[1].text.strip() if len(props) > 1 else None
+        transmission = props[2].text.strip() if len(props) > 2 else None
+        fuel = props[3].text.strip() if len(props) > 3 else None
+        power = props[4].text.strip() if len(props) > 4 else None
+        raw = props[5].text.strip() if len(props) > 5 else None
 
         consumption = emission = None
-        if raw_consumption_emission:
-            parts = raw_consumption_emission.replace("\n", ",").split(",")
-            for part in parts:
-                part = part.strip()
-                if "l/100km" in part:
-                    consumption = part
-                elif "g CO2/km" in part:
-                    emission = part
-
-        current_price = self.get_current_price(car)
+        if raw:
+            parts = raw.replace("\n", ",").split(",")
+            for p in parts:
+                p = p.strip()
+                if "l/100km" in p:
+                    consumption = p
+                elif "g CO2/km" in p:
+                    emission = p
 
         return {
             'Brand': brand,
@@ -119,57 +128,72 @@ class CarFetcher:
             'Power': power,
             'l/Km': consumption,
             'Emission': emission,
-            'CurrentPrice': current_price
+            'CurrentPrice': self.get_current_price(car)
         }
 
-def build_search_url(base_url, filter_dict):
-    return f"{base_url}?{urlencode(filter_dict)}"
-
+# --- Main Scraper Function ---
 def scrape_with_filter(filter_set):
     search_url = build_search_url("https://www.auto.de/search", filter_set)
     print(f"[START] Scraping: {search_url}")
 
-    browser = WebAutomation(headless=True)  # Of False als je wil zien wat er gebeurt
+    browser = WebAutomation(headless=False)
     fetcher = CarFetcher(browser.driver)
+    all_car_data = []
 
     try:
         browser.driver.get(search_url)
         browser.accept_cookies()
         browser.zoom_out_css(0.75)
 
-        all_car_data = []
-        for page_number in range(1, 21):  # max 10 pagina's per filter
+        for page_number in range(1, 3):
+            print(f"\n[PAGE {page_number}] Scrolling...")
             browser.slow_scroll()
-            car_listings = browser.driver.find_elements(By.CSS_SELECTOR, 'section.VehicleSmallCard__vehicle____C5Tg')
-            if not car_listings:
+            cars = browser.driver.find_elements(By.CSS_SELECTOR, 'section.VehicleSmallCard__vehicle____C5Tg')
+            print(f"[PAGE {page_number}] Found {len(cars)} car elements on the page.")
+
+            unique_data = set()
+            page_results = []
+
+            for car in cars:
+                data = fetcher.get_car_data(car)
+                if not data:
+                    continue
+                identifier = normalize_identifier(data)
+                if identifier not in unique_data:
+                    unique_data.add(identifier)
+                    page_results.append(data)
+                    print(f"[CAR] {identifier}")
+
+                if len(unique_data) == 15:
+                    break
+
+            if len(page_results) == 0:
+                print(f"[STOP] Geen nieuwe unieke auto's gevonden op pagina {page_number} → stoppen.")
                 break
 
-            page_car_data = [fetcher.get_car_data(car) for car in car_listings[:15]]
-            all_car_data.extend(page_car_data)
+            all_car_data.extend(page_results)
+            print(f"[PAGE {page_number}] Saved {len(page_results)} unique cars.")
 
             if not browser.go_to_next_page():
                 break
 
-        print(f"[DONE] Filter: {filter_set} — {len(all_car_data)} cars scraped")
-        return all_car_data
-
     finally:
         browser.quit()
 
+    return all_car_data
 
+# --- Parallel Control ---
 def scrape_auto_de_parallel():
     filters = [
-        {"firstRegistrationYearFrom": "2014"},
-        {"firstRegistrationYearFrom": "2015"},
-        {"firstRegistrationYearFrom": "2016"},
-        {"firstRegistrationYearFrom": "2017"},
-        {"firstRegistrationYearFrom": "2018"},
-        {"firstRegistrationYearFrom": "2019"},
-        {"firstRegistrationYearFrom": "2020"},
-        {"firstRegistrationYearFrom": "2021"},
-        {"firstRegistrationYearFrom": "2022"},
-        {"firstRegistrationYearFrom": "2023"},
-        {"firstRegistrationYearFrom": "2024"},
+        {"FIRST_REGISTRATION[from]": "2017", "FIRST_REGISTRATION[to]": "2017"},
+        {"FIRST_REGISTRATION[from]": "2018", "FIRST_REGISTRATION[to]": "2018"},
+        {"FIRST_REGISTRATION[from]": "2019", "FIRST_REGISTRATION[to]": "2019"},
+        {"FIRST_REGISTRATION[from]": "2020", "FIRST_REGISTRATION[to]": "2020"},
+        {"FIRST_REGISTRATION[from]": "2021", "FIRST_REGISTRATION[to]": "2021"},
+        {"FIRST_REGISTRATION[from]": "2022", "FIRST_REGISTRATION[to]": "2022"},
+        {"FIRST_REGISTRATION[from]": "2023", "FIRST_REGISTRATION[to]": "2023"},
+        {"FIRST_REGISTRATION[from]": "2024", "FIRST_REGISTRATION[to]": "2024"},
+        {"FIRST_REGISTRATION[from]": "2025", "FIRST_REGISTRATION[to]": "2025"},
     ]
 
     all_data = []
@@ -180,9 +204,13 @@ def scrape_auto_de_parallel():
             if result:
                 all_data.extend(result)
 
-    df = pd.DataFrame(all_data)
-    df.to_csv('car_data_parallel.csv', index=False)
-    print(f"\n[SAVED] Total cars scraped: {len(df)}")
+    # Maak gecombineerde CSV met alles
+    if all_data:
+        df_all = pd.DataFrame(all_data)
+        df_all.drop_duplicates(subset=['Brand', 'Model', 'Kilometers', 'CurrentPrice'], inplace=True)
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        df_all.to_csv(f"car_data_all_combined_{timestamp}.csv", index=False)
+        print(f"[✓] Gecombineerde dataset opgeslagen als: car_data_all_combined_{timestamp}.csv")
 
 if __name__ == "__main__":
     scrape_auto_de_parallel()
