@@ -9,7 +9,7 @@ class DataEnricher:
     def enrich_data(self):
         # Preis pro Kilometer berechnen
         self.df["Price_per_km"] = self.df["cleaned_Price"] / self.df["Kilometer"]
-
+        self.df['Brand'] = self.df['Brand'].str.replace('SEAT', 'Seat')
         try:
             # Kraftstoffpreise definieren
             # Quellen:
@@ -68,7 +68,8 @@ class DataEnricher:
                 lambda co2_value: "Above Average" if co2_value > average_co2_per_year else "Below Average"
             )
             self.df['Gear_Type'] = self.df['Transmission'].str.replace('Manuell', 'Schaltgetriebe')
-            self.df['Fuel_Type'] = self.df['Fuel'].copy()
+            self.df['Fuel_Type'] = (self.df['Fuel'].str.replace('Hybrid (Elektro / Benzin)', 'Elektro/Benzin').
+                                    str.replace('Autogas', 'Autogas (LPG)').str.replace('Erdgas','Erdgas (CNG)'))
         # Spaltennamen standardisieren
         self.df.rename(columns={"CO2_Emission": "CO2_g_km"}, inplace=True)
 
@@ -115,7 +116,7 @@ class DataEnricher:
             # handle categorical data
             ordered_cats_auto_de = {
                 'Gear_Type': ['Keine Information', 'Schaltgetriebe', 'Automatik'],
-                'Fuel_Type': ['Keine Information', 'Wasserstoff', 'Autogas', 'Erdgas', 'Hybrid (Elktro / Benzin)',
+                'Fuel_Type': ['Keine Information', 'Wasserstoff', 'Autogas (LPG)', 'Erdgas (CNG)', 'Elektro/Benzin',
                               'Diesel', 'Benzin']
             }
 

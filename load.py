@@ -62,6 +62,21 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.show()
 
+    # Durchschnittlicher Verbrauch pro Marke & Marketplace
+    avg_consumption = (
+        df.groupby(['Marketplace', 'Brand_Grouped'])['Consumption']
+        .mean()
+        .reset_index()
+    )
+
+    plt.figure(figsize=(14, 6))
+    sns.barplot(data=avg_consumption, x='Brand_Grouped', y='Consumption', hue='Marketplace')
+    plt.title('Average Fuel Consumption by Brand Group and Marketplace')
+    plt.ylabel('Consumption (L/100km)')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
     # -----------------------
     # Research Question 2
     # -----------------------
@@ -73,21 +88,32 @@ if __name__ == "__main__":
         .reset_index()
     )
     print("######################### Research Question 2 #########################\n")
-    # Plot 3: Fuel Consumption
-    plt.figure(figsize=(8, 5))
-    sns.barplot(data=fuel_emissions, x='Marketplace', y='Consumption')
-    plt.title('Average Fuel Consumption (L/100km) by Marketplace')
+
+    # Durchschnittlicher Verbrauch & Emissionen nach Marketplace + Fuel_Type
+    fuel_emissions_by_type = (
+        df.groupby(['Marketplace', 'Fuel_Type'])[['Consumption', 'CO2_g_km']]
+        .mean()
+        .reset_index()
+    )
+
+    # Set plot style
+    sns.set(style="whitegrid")
+
+    # Plot 3: Average Fuel Consumption by Fuel Type and Marketplace
+    plt.figure(figsize=(12, 6))
+    sns.barplot(data=fuel_emissions_by_type, x='Fuel_Type', y='Consumption', hue='Marketplace')
+    plt.title('Average Fuel Consumption (L/100km) by Fuel Type and Marketplace')
     plt.ylabel('Fuel Consumption (L/100km)')
-    plt.xticks(rotation=45)
+    plt.xlabel('Fuel Type')
     plt.tight_layout()
     plt.show()
 
-    # Plot 4: CO2 Emissions
-    plt.figure(figsize=(8, 5))
-    sns.barplot(data=fuel_emissions, x='Marketplace', y='CO2_g_km')
-    plt.title('Average CO₂ Emissions (g/km) by Marketplace')
+    # Plot 4: Average CO₂ Emissions by Fuel Type and Marketplace
+    plt.figure(figsize=(12, 6))
+    sns.barplot(data=fuel_emissions_by_type, x='Fuel_Type', y='CO2_g_km', hue='Marketplace')
+    plt.title('Average CO2 Emissions (g/km) by Fuel Type and Marketplace')
     plt.ylabel('CO₂ Emissions (g/km)')
-    plt.xticks(rotation=45)
+    plt.xlabel('Fuel Type')
     plt.tight_layout()
     plt.show()
 
@@ -129,7 +155,7 @@ if __name__ == "__main__":
     trainer.add_model(
         "Random Forest", RandomForestRegressor(random_state=42),
         {
-            'regressor__n_estimators': [100],  # Fixierte Baumanzahl
+            'regressor__n_estimators': [100, 300],  # Fixierte Baumanzahl
             'regressor__max_depth': [10, 20],
             'regressor__min_samples_split': [2, 5]
         },
@@ -171,9 +197,9 @@ if __name__ == "__main__":
     trainer.add_model(
         "XGBoost", XGBRegressor(random_state=42, verbosity=0),
         {
-            'regressor__n_estimators': [100],
-            'regressor__max_depth': [3, 5],
-            'regressor__learning_rate': [0.05]
+            'regressor__n_estimators': [100, 300],
+            'regressor__max_depth': [3, 5, 7, 11, 13],
+            'regressor__learning_rate': [0.005, 0.05, 0.5]
         },
         "purple"
     )
