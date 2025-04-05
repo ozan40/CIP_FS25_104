@@ -9,11 +9,28 @@ columns_to_read = [
 
 df_autoscout = pd.read_csv("Data/imputed_output.csv", sep=";", usecols=columns_to_read)
 df_auto_de = pd.read_csv("Data/transformed_Auto.de.csv", sep = ";", usecols=columns_to_read)
-df_mobile_de = pd.read_csv("Data/car_mobile.csv", sep = ",", names=['Brand', 'Model', 'car_info',
-                                                                    "cleaned_Price"," Price_Eval", "Kilometer","Gear_Type","YearMonth","Fuel_Type",
-                                                                    "Power_PS", "Consumption", "CO2_g_km"], header = 0)
 
-df_mobile_de = df_mobile_de.drop('car_info', axis=1)
+df_auto_de['cleaned_Price'] = df_auto_de['cleaned_Price'].astype(str).str.replace('.', '', regex=False).astype(int)
+
+df_mobile_de = pd.read_csv("Data/car_mobile.csv", sep = ",")
+
+
+df_mobile_de = df_mobile_de.rename(columns={
+    "brand": "Brand",
+    "model": "Model",  
+    "price":"cleaned_Price",
+    "price_evaluation":"Price_Eval",
+    "kilometer":"Kilometer" ,
+    "gear":"Gear_Type",
+    "date":"YearMonth",
+    "fuel":"Fuel_Type",
+    "power":"Power_PS",
+    "consumption":"Consumption",
+    "co2":"CO2_g_km",
+    })
+
+df_mobile_de = df_mobile_de.drop(['car_info','user_text'], axis=1)
+
 
 #-------Date---------
 
