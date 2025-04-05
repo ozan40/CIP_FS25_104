@@ -110,7 +110,7 @@ class DataEnricher:
                         )
 
                     self.df['Fuel_Type'] = (self.df['Fuel_Type'].str.replace('Hybrid (Benzin/Elektro)', 'Elektro/Benzin').
-                                            str.replace('Andere', 'Keine Information'))
+                                            str.replace('Andere', 'Sonstige'))
                     self.df['Price_Eval'] = (self.df['Price_Eval'].str.replace('Ohne Bewertung', 'Keine Information'))
                     # Spaltennamen standardisieren
         self.df.rename(columns={"CO2_Emission": "CO2_g_km"}, inplace=True)
@@ -185,8 +185,7 @@ class DataEnricher:
                     ordered_cats_mobile_de = {
                         'Price_Eval': ['Keine Information','Hoher Preis', 'Erhöhter Preis', 'Fairer Preis', 'Guter Preis',
                                        'Sehr guter Preis'],
-                        'Fuel_Type': ['Keine Information', 'Wasserstoff', 'Autogas (LPG)', 'Erdgas (CNG)', 'Elektro/Benzin',
-                                      'Diesel', 'Benzin']
+                        'Fuel_Type': ['Keine Information', 'Sonstige', 'Erdgas (CNG)', 'Elektro/Benzin','Diesel', 'Benzin']
                     }
 
                     # Loop through DataFrame columns to efficiently change data types

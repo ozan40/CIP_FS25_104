@@ -7,7 +7,7 @@ import pandas as pd
 
 if __name__ == "__main__":
 
-    # Autoscout.de part
+    print("########################### Autoscout.de Transformation Part ###########################\n")
     # load data
     autoscout_df = pd.read_csv("Data/autoscout_data.csv", sep=";")
 
@@ -20,14 +20,13 @@ if __name__ == "__main__":
     # enrich Data
     enricher = transform.DataEnricher(cleaned_df)
     enriched_df = enricher.categorize_cols()
-    print("########################### Autoscout.de Transformation Part ###########################\n")
+
     print(missing_val)
     print(msno_visual)
     print(outlier_information)
     print(enriched_df.dtypes)
 
-
-    # Auto.de part
+    print("########################### Auto.de Transformation Part ###########################\n")
     # Load Data
     auto_de_df = pd.read_csv("Data/Auto_de_Data.csv", sep = ",")
 
@@ -41,31 +40,15 @@ if __name__ == "__main__":
     enricher_auto_de = transform.DataEnricher(cleaned_df_auto)
     enriched_df_auto_de = enricher_auto_de.categorize_cols()
 
-    print("########################### Auto.de Transformation Part ###########################\n")
     print(missing_val_auto)
     print(msno_visual_auto)
     print(outlier_information_auto)
     print(enriched_df_auto_de.dtypes)
 
-
-
+    print("########################### Mobile.de Transformation Part ###########################\n")
     # Mobile.de Part
     # Load Data
     df_mobile_de = pd.read_csv("Data/car_mobile.csv", sep=",")
-    # df_mobile_de['Marketplace'] = 'Mobile.de'
-    # df_mobile_de = df_mobile_de.rename(columns={
-    #     "brand": "Brand",
-    #     "model": "Model",
-    #     "price": "cleaned_Price",
-    #     "price_evaluation": "Price_Eval",
-    #     "kilometer": "Kilometer",
-    #     "gear": "Gear_Type",
-    #     "date": "YearMonth",
-    #     "fuel": "Fuel_Type",
-    #     "power": "Power_PS",
-    #     "consumption": "Consumption",
-    #     "co2": "CO2_g_km",
-    # })
 
     # clean Data
     cleaner_mobile_de = transform.DataCleaner(df_mobile_de)
@@ -77,7 +60,7 @@ if __name__ == "__main__":
     enricher_mobile_de = transform.DataEnricher(df_mobile_de)
     enriched_df_mobile_de = enricher_mobile_de.categorize_cols()
 
-    print("########################### Mobile.de Transformation Part ###########################\n")
+
     print(missing_val_mobile)
     print(msno_visual_mobile)
     print(outlier_information_mobile)
