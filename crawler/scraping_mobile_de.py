@@ -319,7 +319,7 @@ def main():
 
     # saves it to root becaus i added sys.path.append("path to root") to this script trying to import crawler
     # Export car_list to a CSV file
-    with open('car_mobile.csv', mode='w', newline='', encoding='utf-8') as file:
+    with open('../Data/car_mobile.csv', mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
 
         # Write the header row (attribute names)
