@@ -234,4 +234,26 @@ if __name__ == "__main__":
     imputer = load.ConsumptionImputer(best_pipeline, features)
     imputed_df = imputer.impute(data_frame)
 
-#    imputed_df.to_csv("Data/imputed_output.csv", sep = ";")
+    imputed_df.to_csv("Data/imputed_output.csv", sep = ";")
+    print("######################### Imputed Output #########################\n")
+    # Average fuel consumption and CO₂ emissions per marketplace
+
+
+    # Durchschnittlicher Verbrauch & Emissionen nach Marketplace + Fuel_Type
+    fuel_emissions_by_type_after_imputing = (
+        imputed_df.groupby(['Marketplace', 'Fuel_Type'])[['Consumption', 'CO2_g_km']]
+        .mean()
+        .reset_index()
+    )
+
+    # Set plot style
+    sns.set(style="whitegrid")
+
+    # Plot 3: Average Fuel Consumption by Fuel Type and Marketplace
+    plt.figure(figsize=(12, 6))
+    sns.barplot(data=fuel_emissions_by_type_after_imputing, x='Fuel_Type', y='Consumption', hue='Marketplace')
+    plt.title('Average Fuel Consumption (L/100km) by Fuel Type and Marketplace')
+    plt.ylabel('Fuel Consumption (L/100km)')
+    plt.xlabel('Fuel Type')
+    plt.tight_layout()
+    plt.show()
