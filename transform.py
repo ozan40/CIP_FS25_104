@@ -47,12 +47,46 @@ if __name__ == "__main__":
     print(outlier_information_auto)
     print(enriched_df_auto_de.dtypes)
 
+
+
+    # Mobile.de Part
+    # Load Data
+    df_mobile_de = pd.read_csv("Data/car_mobile.csv", sep=",")
+    # df_mobile_de['Marketplace'] = 'Mobile.de'
+    # df_mobile_de = df_mobile_de.rename(columns={
+    #     "brand": "Brand",
+    #     "model": "Model",
+    #     "price": "cleaned_Price",
+    #     "price_evaluation": "Price_Eval",
+    #     "kilometer": "Kilometer",
+    #     "gear": "Gear_Type",
+    #     "date": "YearMonth",
+    #     "fuel": "Fuel_Type",
+    #     "power": "Power_PS",
+    #     "consumption": "Consumption",
+    #     "co2": "CO2_g_km",
+    # })
+
+    # clean Data
+    cleaner_mobile_de = transform.DataCleaner(df_mobile_de)
+    cleaned_df_mobile = cleaner_mobile_de.cleaned_categorical_values()
+    missing_val_mobile, msno_visual_mobile = cleaner_mobile_de.missing_values(cleaned_df_mobile)
+    outlier_information_mobile = cleaner_mobile_de.detect_outliers()
+
+    # enrich Data
+    enricher_mobile_de = transform.DataEnricher(df_mobile_de)
+    enriched_df_mobile_de = enricher_mobile_de.categorize_cols()
+
+    print("########################### Mobile.de Transformation Part ###########################\n")
+    print(missing_val_mobile)
+    print(msno_visual_mobile)
+    print(outlier_information_mobile)
+    print(enriched_df_mobile_de.dtypes)
+
     # Combine Data
-    combined_data = pd.concat([enriched_df, enriched_df_auto_de], ignore_index=True)
+    combined_data = pd.concat([enriched_df, enriched_df_auto_de, enriched_df_mobile_de], ignore_index=True)
     print("########################### Combined Data ###########################\n")
     print("✅ Combined Dataset Shape:", combined_data.shape)
     print("✅ Preview:\n", combined_data.head())
-
+    #
     combined_data.to_csv("Data/transformed_output.csv", sep=";")
-
-
