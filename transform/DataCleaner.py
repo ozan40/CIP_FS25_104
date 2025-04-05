@@ -12,24 +12,46 @@ class DataCleaner:
         try:
             self.df["Kilometer"] = self.df["Kilometer"].str.replace(" km", "").str.replace(".", "").astype(float)
             self.df["Power_PS"] = self.df["Horsepower"].str.extract(r"\((\d+)\s*PS\)").astype(float)
-            self.df["Consumption"] = self.df["Consumption"].str.replace(" l/100 km", "").str.replace(",", ".").astype(float)
+            self.df["Consumption"] = self.df["Consumption"].str.replace(" l/100 km", "").str.replace(",", ".").astype(
+                float)
             self.df["CO2_Emission"] = self.df["CO2_Emission"].str.replace(" g/km", "").astype(float)
             self.df["YearMonth"] = pd.to_datetime(self.df["YearMonth"], format="%m/%Y")
         except KeyError:
-            # Transmission: 'Manuell' -> 'Schaltgetriebe', Automatik bleibt gleich
+            # Wenn bestimmte Spalten fehlen, versuche es mit anderen DataFrames
+            if "Kilometers" in self.df.columns:
+                # Transmission: 'Manuell' -> 'Schaltgetriebe', Automatik bleibt gleich
+                self.df["Marketplace"] = "Auto.de"
+                self.df["Kilometer"] = self.df["Kilometers"].str.replace(" km", "").str.replace(".", "").astype(float)
+                self.df["YearMonth"] = pd.to_datetime(self.df["BuildYear"], format="%m/%Y")
 
-            self.df["Marketplace"] = "Auto.de"
-            self.df["Kilometer"] = self.df["Kilometers"].str.replace(" km", "").str.replace(".", "").astype(float)
-            self.df["YearMonth"] = pd.to_datetime(self.df["BuildYear"], format="%m/%Y")
+                # Power: '130 kW (177 PS)' -> 177
+                self.df['Power_PS'] = self.df['Power'].str.extract(r'\((\d+)\s*PS\)').astype(float)
 
-            # Power: '130 kW (177 PS)' -> 177
-            self.df['Power_PS'] = self.df['Power'].str.extract(r'\((\d+)\s*PS\)').astype(float)
+                # Consumption: '7l/100km' -> 7
+                self.df['Consumption'] = self.df['l/Km'].str.extract(r'(\d+)', expand=False).astype(float)
 
-            # Consumption: '7l/100km' -> 7
-            self.df['Consumption'] = self.df['l/Km'].str.extract(r'(\d+)', expand=False).astype(float)
+                # CO2: '108g CO2/km (komb)*' -> 108
+                self.df['CO2_Emission'] = self.df['Emission'].str.extract(r'(\d+)', expand=False).astype(int)
+            elif "brand" in self.df.columns:
+                self.df["Marketplace"] = "Mobile.de"
+                self.df["Brand"] = self.df["brand"]
+                self.df["Model"] = self.df["model"]
+                self.df["Kilometer"] = self.df["kilometer"]
+                self.df["Gear_Type"] = self.df["gear"]
+                self.df["Fuel_Type"] = self.df["fuel"]
+                self.df['Price_Eval'] = self.df['price_evaluation']
+                self.df["YearMonth"] = pd.to_datetime(self.df["date"], format="%m/%Y")
 
-            # CO2: '108g CO2/km (komb)*' -> 108
-            self.df['CO2_Emission'] = self.df['Emission'].str.extract(r'(\d+)', expand=False).astype(int)
+                # Power: '130 kW (177 PS)' -> 177
+                self.df['Power_PS'] = self.df['power']
+
+                # Consumption: '7l/100km' -> 7
+                self.df['Consumption'] = self.df['consumption']
+
+                # CO2: '108g CO2/km (komb)*' -> 108
+                self.df['CO2_Emission'] = self.df['co2']
+            else:
+                raise KeyError("None of the expected columns are found in the DataFrame.")
 
         # Clean Prices
         cleaned_prices = []
@@ -48,7 +70,13 @@ class DataCleaner:
                     cleaned_prices.append(np.nan)
             self.df["cleaned_Price"] = cleaned_prices
         except KeyError:
-            self.df['cleaned_Price'] = self.df['CurrentPrice'].astype(str).str.replace('.', '', regex=False).astype(int)
+            if 'CurrentPrice' in self.df.columns:
+                self.df['cleaned_Price'] = self.df['CurrentPrice'].astype(str).str.replace('.', '', regex=False).astype(
+                    int)
+            elif 'price' in self.df.columns:
+                self.df['cleaned_Price'] = self.df['price']
+            else:
+                raise KeyError("No valid price column found for cleaning.")
 
         return self.df
 
