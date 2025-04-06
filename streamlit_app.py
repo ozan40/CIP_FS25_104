@@ -12,9 +12,8 @@ st.set_page_config(layout="wide")
 
 # Load the dataset
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PARENT_DIR = os.path.dirname(BASE_DIR)
-file_path = os.path.join(PARENT_DIR, 'Data', 'merged_datasets.csv')
-df = pd.read_csv(file_path)
+file_path = os.path.join(BASE_DIR, 'Data', 'imputed_output.csv')
+df = pd.read_csv(file_path, sep= ";")
 
 st.title("Comparing German Car Marketplaces")
 st.subheader("Over 10'000 cars were scrapped using Selenium nad BeautifulSoup. For all the following interpretation of data we asume that crawling the marketplaces was succesful with no systematic errors. Furhter we asume that the crawled output is representativ of the individual marketplace.")
@@ -27,28 +26,28 @@ col1, col2, col3 = st.columns(3)
 #prepare data 
 
 # Group by "source" and "Brand" and count occurrences
-grouped = df.groupby(["source", "Brand"]).size().reset_index(name="count")
+grouped = df.groupby(["Marketplace", "Brand"]).size().reset_index(name="count")
 
 # Calculate the total count per brand across all sources
 brand_totals = grouped.groupby("Brand")["count"].transform("sum")
 
 # Get the top 15 brands based on total count across all sources
-top_15_brands = grouped.groupby("Brand")["count"].sum().nlargest(10).index.tolist()
+top_10_brands = grouped.groupby("Brand")["count"].sum().nlargest(10).index.tolist()
 
 # Filter for the top 15 brands only
-grouped_top_15 = grouped[grouped["Brand"].isin(top_15_brands)]
+grouped_top_10 = grouped[grouped["Brand"].isin(top_10_brands)]
 
 # Calculate the total count per source
-source_totals = grouped_top_15.groupby("source")["count"].transform("sum")
+source_totals = grouped_top_10.groupby("Marketplace")["count"].transform("sum")
 
 # Calculate percentage of each brand within each source
-grouped_top_15["percentage"] = (grouped_top_15["count"] / source_totals) * 100
+grouped_top_10["percentage"] = (grouped_top_10["count"] / source_totals) * 100
 
 # Round the percentages to 2 decimal places
-grouped_top_15["percentage"] = grouped_top_15["percentage"].round(2)
+grouped_top_10["percentage"] = grouped_top_10["percentage"].round(2)
 
 # Pivot the data so that each brand is a row, and each source is a column
-pivot = grouped_top_15.pivot(index="Brand", columns="source", values="percentage").fillna(0)
+pivot = grouped_top_10.pivot(index="Brand", columns="Marketplace", values="percentage").fillna(0)
 
 # Sort the pivot table by the "auto.de" source in descending order
 pivot = pivot.sort_values(by="Auto.de", ascending=True)
@@ -91,7 +90,7 @@ with col1:
 # Prepare the data for the second plot (actual bar chart for source1)
 with col2:
     option2 = {
-        "title": {"text": "Autoscout.de",
+        "title": {"text": "Autoscout24.de",
                   "x": "center"},
         "tooltip": {"trigger": "axis"},
         "xAxis": {
@@ -111,7 +110,7 @@ with col2:
         },
         "series": [{
             "type": "bar",
-            "data": pivot['Autoscout.de'].tolist(),  # Replace 'source1' with your actual source column
+            "data": pivot['Autoscout24.de'].tolist(),  # Replace 'source1' with your actual source column
             "itemStyle": {"color": "#fc8d62"}
         }]
     }
@@ -158,7 +157,7 @@ import pandas as pd
 import numpy as np
 
 # Ensure no NaNs and only valid sources
-df_filtered = df[df['price_log'].notna() & df['source'].isin(['Auto.de', 'Autoscout.de', 'Mobile.de'])]
+df_filtered = df[df['price_log'].notna() & df['Marketplace'].isin(['Auto.de', 'Autoscout24.de', 'Mobile.de'])]
 
 # ECharts boxplot needs 5-number summary for each group
 box_data = []
@@ -166,8 +165,8 @@ outliers = []
 x_labels = []
 color = ["#8da0cb","#fc8d62","#66c2a5"]
 
-for i, source in enumerate(['Auto.de', 'Autoscout.de', 'Mobile.de']):
-    values = df_filtered[df_filtered['source'] == source]['price_log'].sort_values()
+for i, source in enumerate(['Auto.de', 'Autoscout24.de', 'Mobile.de']):
+    values = df_filtered[df_filtered['Marketplace'] == source]['price_log'].sort_values()
     q1 = np.percentile(values, 25)
     q3 = np.percentile(values, 75)
     iqr = q3 - q1
@@ -230,43 +229,58 @@ st_echarts(option, height="500px")
 st.markdown("We can see that all marketplace have similar distribution of prices. Still Auto.de does have a higher median. The reason could be that Auto.de sell newer cars compared to autoscout.de and mobile.de. If we look at the outliers Auto.de seems to offer some cheaper cars. At the least in our the scarped dataset")
 
 
-# -- Multiselect Filters --
-sources = df['source'].unique().tolist()
-brand_types = df['Brand'].unique().tolist()
-model_types = df['Model'].unique().tolist()
+# Select a brand
+brands = df['Brand'].unique()
+selected_brand = st.selectbox("Select a Brand", brands)
 
+# Filter models based on brand
+models = df[df['Brand'] == selected_brand]['Model'].unique()
+selected_model = st.selectbox("Select a Model", models)
 
-selected_sources = st.multiselect("Select sources", sources, default=sources)
-selected_brand_types = st.multiselect("Select car types", brand_types, default="Volkswagen")
+# Filter data for plotting
+filtered_data = df[(df['Brand'] == selected_brand) & (df['Model'] == selected_model)]
 
-# -- Filter Data --
-filtered_df = df[df['source'].isin(selected_sources) & df['Brand'].isin(selected_brand_types)]
+# Plotting
+st.subheader(f"Prices for {selected_brand} - {selected_model}")
 
-# -- Count car types --
-counts = filtered_df['Model'].value_counts().sort_values(ascending=False)
-car_type_labels = counts.index.tolist()
-car_type_counts = counts.values.tolist()
+# Prepare boxplot data
+marketplaces = filtered_data['Marketplace'].unique()
+box_data = []
+for market in marketplaces:
+    prices = filtered_data[filtered_data['Marketplace'] == market]['cleaned_Price'].tolist()
+    stats = [
+        np.min(prices),
+        np.percentile(prices, 25),
+        np.median(prices),
+        np.percentile(prices, 75),
+        np.max(prices)
+    ]
+    box_data.append(stats)
 
-# -- ECharts Option --
-option = {
-    "title": {"text": "Car Type Distribution", "left": "center"},
-    "tooltip": {},
+# ECharts boxplot config
+options = {
+    "title": {"text": f"{selected_model} Price Distribution"},
+    "tooltip": {"trigger": "item", "formatter": "Min: {c[0]}<br/>Q1: {c[1]}<br/>Median: {c[2]}<br/>Q3: {c[3]}<br/>Max: {c[4]}"},
     "xAxis": {
         "type": "category",
-        "data": car_type_labels,
-        "axisLabel": {"rotate": 30}
+        "data": marketplaces.tolist(),
+        "boundaryGap": True,
+        "name": "Marketplace"
     },
-    "yAxis": {"type": "value"},
+    "yAxis": {
+        "type": "value",
+        "name": "Price"
+    },
     "series": [
         {
-            "name": "Count",
-            "type": "bar",
-            "data": car_type_counts,
+            "name": "Price Distribution",
+            "type": "boxplot",
+            "data": box_data,
             "itemStyle": {
-                "color": "#5470C6"
-            },
+                "color": "#91cc75"
+            }
         }
     ]
 }
 
-st_echarts(option, height="500px")
+st_echarts(options=options, height="500px")
