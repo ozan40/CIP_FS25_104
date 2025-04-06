@@ -12,11 +12,11 @@ st.set_page_config(layout="wide")
 
 # Load the dataset
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(BASE_DIR, 'Data', 'imputed_output.csv')
-df = pd.read_csv(file_path, sep= ";")
+file_path = os.path.join(BASE_DIR, 'Data', 'merged_datasets.csv')
+df = pd.read_csv(file_path, sep= ",")
 
-st.title("Comparing German Car Marketplaces")
-st.subheader("Over 10'000 cars were scrapped using Selenium nad BeautifulSoup. For all the following interpretation of data we asume that crawling the marketplaces was succesful with no systematic errors. Furhter we asume that the crawled output is representativ of the individual marketplace.")
+st.title("Comparing German Car sources")
+st.subheader("Over 10'000 cars were scrapped using Selenium nad BeautifulSoup. For all the following interpretation of data we asume that crawling the sources was succesful with no systematic errors. Furhter we asume that the crawled output is representativ of the individual source.")
 
 st.markdown('''
             In this project we investigate **three research question**: 
@@ -33,7 +33,7 @@ col1, col2, col3 = st.columns(3)
 #prepare data 
 
 # Group by "source" and "Brand" and count occurrences
-grouped = df.groupby(["Marketplace", "Brand"]).size().reset_index(name="count")
+grouped = df.groupby(["source", "Brand"]).size().reset_index(name="count")
 
 # Calculate the total count per brand across all sources
 brand_totals = grouped.groupby("Brand")["count"].transform("sum")
@@ -45,7 +45,7 @@ top_10_brands = grouped.groupby("Brand")["count"].sum().nlargest(10).index.tolis
 grouped_top_10 = grouped[grouped["Brand"].isin(top_10_brands)]
 
 # Calculate the total count per source
-source_totals = grouped_top_10.groupby("Marketplace")["count"].transform("sum")
+source_totals = grouped_top_10.groupby("source")["count"].transform("sum")
 
 # Calculate percentage of each brand within each source
 grouped_top_10["percentage"] = (grouped_top_10["count"] / source_totals) * 100
@@ -54,7 +54,7 @@ grouped_top_10["percentage"] = (grouped_top_10["count"] / source_totals) * 100
 grouped_top_10["percentage"] = grouped_top_10["percentage"].round(2)
 
 # Pivot the data so that each brand is a row, and each source is a column
-pivot = grouped_top_10.pivot(index="Brand", columns="Marketplace", values="percentage").fillna(0)
+pivot = grouped_top_10.pivot(index="Brand", columns="source", values="percentage").fillna(0)
 
 # Sort the pivot table by the "auto.de" source in descending order
 pivot = pivot.sort_values(by="Auto.de", ascending=True)
@@ -97,7 +97,7 @@ with col1:
 # Prepare the data for the second plot (actual bar chart for source1)
 with col2:
     option2 = {
-        "title": {"text": "Autoscout24.de",
+        "title": {"text": "Autoscout.de",
                   "x": "center"},
         "tooltip": {"trigger": "axis"},
         "xAxis": {
@@ -117,7 +117,7 @@ with col2:
         },
         "series": [{
             "type": "bar",
-            "data": pivot['Autoscout24.de'].tolist(),  # Replace 'source1' with your actual source column
+            "data": pivot['Autoscout.de'].tolist(),  # Replace 'source1' with your actual source column
             "itemStyle": {"color": "#fc8d62"}
         }]
     }
@@ -156,18 +156,18 @@ with col3:
     st_echarts(option3)
 
 st.markdown("We can see that the distribution of percentage of car brands scraped differs from site to site. " 
-    "Volkswagen was scrapped the most in all three marketplaces but Mobile.de shows extrem results with over 50'%' of the scrapped cars being Volkswagen." 
+    "Volkswagen was scrapped the most in all three sources but Mobile.de shows extrem results with over 50'%' of the scrapped cars being Volkswagen." 
     "The second most scrapped brand was Mercedes-Benz but this is not the case for Auto.de, where we see Ford as the second most scrapped Brand.")
 
 st.subheader("Price Difference between Markplaces")
-st.markdown("For our first research question we want to visually explore the question whether there are differences in car listing prices between marketplaces. Approaching this question, we first plot boxplots of the log of prices for each marketplace.")
+st.markdown("For our first research question we want to visually explore the question whether there are differences in car listing prices between sources. Approaching this question, we first plot boxplots of the log of prices for each source.")
 
 df["price_log"] = np.log(df["cleaned_Price"])
 import pandas as pd
 import numpy as np
 
 # Ensure no NaNs and only valid sources
-df_filtered = df[df['price_log'].notna() & df['Marketplace'].isin(['Auto.de', 'Autoscout24.de', 'Mobile.de'])]
+df_filtered = df[df['price_log'].notna() & df['source'].isin(['Auto.de', 'Autoscout.de', 'Mobile.de'])]
 
 # ECharts boxplot needs 5-number summary for each group
 box_data = []
@@ -175,8 +175,8 @@ outliers = []
 x_labels = []
 color = ["#8da0cb","#fc8d62","#66c2a5"]
 
-for i, source in enumerate(['Auto.de', 'Autoscout24.de', 'Mobile.de']):
-    values = df_filtered[df_filtered['Marketplace'] == source]['price_log'].sort_values()
+for i, source in enumerate(['Auto.de', 'Autoscout.de', 'Mobile.de']):
+    values = df_filtered[df_filtered['source'] == source]['price_log'].sort_values()
     q1 = np.percentile(values, 25)
     q3 = np.percentile(values, 75)
     iqr = q3 - q1
@@ -236,9 +236,9 @@ option = {
 }
 st_echarts(option, height="500px")
 
-st.markdown("We can see that all marketplace have similar distribution of prices. Still Auto.de does have a higher median. The reason could be that Auto.de sells newer cars compared to autoscout.de and mobile.de. If we look at the outliers Auto.de seems to offer some cheaper cars. At the least in our the scarped dataset")
+st.markdown("We can see that all source have similar distribution of prices. Still Auto.de does have a higher median. The reason could be that Auto.de sells newer cars compared to autoscout.de and mobile.de. If we look at the outliers Auto.de seems to offer some cheaper cars. At the least in our the scarped dataset")
 
-st.markdown("### Next we can compare specific car models across marketplaces.")
+st.markdown("### Next we can compare specific car models across sources.")
 st.markdown("")
 
 
@@ -259,19 +259,17 @@ try:
     filtered_data = df[(df['Brand'] == selected_brand) & (df['Model'] == selected_model) & (df['YearMonth'].notna())]
 
     filtered_data_2 = filtered_data
-    filtered_data_2["YearMonth"] = pd.to_datetime(filtered_data_2["YearMonth"])
-    filtered_data_2["Year"] = filtered_data_2["YearMonth"].dt.year    
 
-    years = filtered_data_2['Year'].unique()
+    years = filtered_data_2['YearMonth'].unique()
     print(years)
     years.sort()
 
 
 
-    col2.markdown("Compare car model prices of different first approval years. Since Auto.de lists newer cars we would expect higher price range for Autoscout24.de and Mobile.de")
+    col2.markdown("Compare car model prices of different first approval years. Since Auto.de lists newer cars we would expect higher price range for Autoscout.de and Mobile.de")
 
     selected_year = col2.select_slider("Select Year", years)
-    filtered_data_2 = filtered_data_2[filtered_data_2["Year"] == selected_year]
+    filtered_data_2 = filtered_data_2[filtered_data_2["YearMonth"] == selected_year]
     print(filtered_data_2.shape)
 except Exception as e:
         print(f"An error occurred in start: {e}")
@@ -288,66 +286,48 @@ except Exception as e:
 
 
 
-# Custom order for marketplaces
-custom_order = ["Auto.de", "Autoscout24.de", "Mobile.de"]
+# Custom order for sources
+custom_order = ["Auto.de", "Autoscout.de", "Mobile.de"]
 
-# Get unique marketplaces
-marketplaces = filtered_data['Marketplace'].unique()
+# Get unique sources
+sources = filtered_data['source'].unique()
 
 
-# Remove the marketplaces in the custom order from the original list, if they exist
-remaining_marketplaces = [m for m in marketplaces if m not in custom_order]
+# Remove the sources in the custom order from the original list, if they exist
+remaining_sources = [m for m in sources if m not in custom_order]
 
-# Combine the custom order with the remaining marketplaces, ensuring no duplicates
-marketplaces = custom_order + remaining_marketplaces
-
-# Filter custom_order to only those marketplaces that exist in the data
-available_marketplaces = [m for m in custom_order if m in filtered_data['Marketplace'].unique()]
+# Combine the custom order with the remaining sources, ensuring no duplicates
+sources = custom_order + remaining_sources
 
 box_data = []
-for market in available_marketplaces:
+for market in sources:
     try:
-        prices = filtered_data[
-            (filtered_data['Marketplace'] == market) & 
-            (filtered_data['cleaned_Price'].notna())
-        ]['cleaned_Price'].tolist()
-        
-        if prices:  # only compute stats if there's data
-            stats = [
-                np.min(prices),
-                np.percentile(prices, 25),
-                np.median(prices),
-                np.percentile(prices, 75),
-                np.max(prices)
-            ]
-        else:
-            stats = [None] * 5  # or skip entirely if you prefer
-
+        prices = filtered_data[(filtered_data['source'] == market) & (filtered_data['cleaned_Price'].notna())]['cleaned_Price'].tolist()
+        stats = [
+            np.min(prices),
+            np.percentile(prices, 25),
+            np.median(prices),
+            np.percentile(prices, 75),
+            np.max(prices)
+        ]
         box_data.append(stats)
-
     except Exception as e:
         print(f"An error occurred in box_data: {e}")
-available_marketplaces_2 = [m for m in custom_order if m in filtered_data_2['Marketplace'].unique()]
+
+
 
 box_data_2 = []
-for market in available_marketplaces_2:
+for market in sources:
     try:
-        prices = filtered_data_2[
-            (filtered_data_2['Marketplace'] == market) & 
-            (filtered_data_2['cleaned_Price'].notna())
-        ]['cleaned_Price'].tolist()
+        prices = filtered_data_2[(filtered_data_2['source'] == market) & (filtered_data_2['cleaned_Price'].notna())]['cleaned_Price'].tolist()
 
-        if prices:
-            stats = [
-                np.min(prices),
-                np.percentile(prices, 25),
-                np.median(prices),
-                np.percentile(prices, 75),
-                np.max(prices)
-            ]
-        else:
-            stats = [None] * 5
-
+        stats = [
+            np.min(prices),
+            np.percentile(prices, 25),
+            np.median(prices),
+            np.percentile(prices, 75),
+            np.max(prices)
+        ]
         box_data_2.append(stats)
     except Exception as e:
         print(f"An error occurred in box_data_2: {e}")
@@ -358,7 +338,7 @@ try:
         "title": {"text": f"{selected_model} Price Distribution"},
         "xAxis": {
             "type": "category",
-            "data": available_marketplaces,
+            "data": sources,
             "boundaryGap": True
         },
         "yAxis": {
@@ -392,7 +372,7 @@ try:
         "title": {"text": f"{selected_year} Price Distribution"},
         "xAxis": {
             "type": "category",
-            "data": available_marketplaces_2,
+            "data": sources,
             "boundaryGap": True
         },
         "yAxis": {
@@ -418,3 +398,4 @@ with col2:
         st_echarts(options=options_2, height="500px", key="col2")
     except: 
         st.markdown("No data")
+
