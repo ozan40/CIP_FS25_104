@@ -8,7 +8,7 @@ class DataEnricher:
 
     def enrich_data(self):
         # Preis pro Kilometer berechnen
-        self.df["Price_per_km"] = self.df["cleaned_Price"] / self.df["Kilometer"]
+        self.df["Price_per_km"] = np.round(self.df["cleaned_Price"] / self.df["Kilometer"],2)
         if 'Marketplace' in self.df.columns:
             if self.df['Marketplace'].iloc[0] == 'Autoscout24.de':
                 self.df['Brand'] = self.df['Brand'].str.replace('SEAT', 'Seat')
