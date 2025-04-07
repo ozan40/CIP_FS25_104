@@ -32,14 +32,14 @@ if __name__ == "__main__":
 
     # Average price per grouped brand and marketplace
     avg_price = (
-        df.groupby(['Marketplace', 'Brand_Grouped'])['cleaned_Price']
+        df.groupby(['Marketplace', 'Brand_Grouped'])['log_cleaned_price']
         .mean()
         .reset_index()
     )
     print("######################### Research Question 1 #########################\n")
     # Plot 1: Average Used Car Price
     plt.figure(figsize=(14, 6))
-    sns.barplot(data=avg_price, x='Brand_Grouped', y='cleaned_Price', hue='Marketplace')
+    sns.barplot(data=avg_price, x='Brand_Grouped', y='log_cleaned_price', hue='Marketplace')
     plt.title('Average Used Car Price by Brand Group and Marketplace')
     plt.ylabel('Average Price (€)')
     plt.xticks(rotation=45)
@@ -48,14 +48,14 @@ if __name__ == "__main__":
 
     # Average price per km
     avg_price_per_km = (
-        df.groupby(['Marketplace', 'Brand_Grouped'])['Price_per_km']
+        df.groupby(['Marketplace', 'Brand_Grouped'])['log_price_per_km']
         .mean()
         .reset_index()
     )
 
     # Plot 2: Price per Kilometer
     plt.figure(figsize=(14, 6))
-    sns.barplot(data=avg_price_per_km, x='Brand_Grouped', y='Price_per_km', hue='Marketplace')
+    sns.barplot(data=avg_price_per_km, x='Brand_Grouped', y='log_price_per_km', hue='Marketplace')
     plt.title('Average Price per Kilometer by Brand Group and Marketplace')
     plt.ylabel('€/km')
     plt.xticks(rotation=45)
@@ -133,6 +133,7 @@ if __name__ == "__main__":
     # get train and testdata
     X_train, X_test, y_train, y_test = trainer.get_train_test_data()
 
+    # Add Ridge Regression incl. parameter tuning
     # Add Ridge Regression incl. parameter tuning
     trainer.add_model(
         "Ridge Regression", Ridge(),

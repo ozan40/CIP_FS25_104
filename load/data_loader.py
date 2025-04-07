@@ -13,7 +13,9 @@ class DataLoader:
     def prepare_features(self, df):
         df_filtered = df[df['Consumption'].notnull()].copy()
         df_filtered['car_age'] = (self.ref_date - pd.to_datetime(df_filtered['YearMonth'])).dt.days / 365
-        features = ['Brand', 'Model','cleaned_Price', 'Kilometer','Fuel_Type', 'Gear_Type',
-                    'Power_PS','car_age','CO2_g_km','CO2_per_year','Marketplace']
+
+
+        features = ['Brand', 'Model','log_cleaned_price', 'Kilometer','Fuel_Type', 'Gear_Type',
+                    'Power_PS','car_age','log_CO2_Emission','log_CO2_per_year','Marketplace']
         target = 'Consumption'
         return df_filtered[features], df_filtered[target], features
