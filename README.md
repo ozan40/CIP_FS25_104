@@ -27,23 +27,25 @@ This project aims to analyze and compare used car prices, fuel efficiency, and e
 
 ## Dataset
 
-|:-----------------|:---------|:-----------|
-|Index             |integer | Index  |
-|Brand         |character | Brand name of car  |
-|Model              |character   | Specific Model of a car|
-|    YearMonth         |  ?  | Date of initial approval|
-|       Kilometer       |   integer |miles of a car in km  |
-|       Gear_Type       |   character| gear type of a car  |
-|       Fuel_Type       |   character | fuel type of a car  |
-|       Consumption       |   ? |?  |
-|       CO2_g_km       |   ? |?  |
-|       Power_PS       |   integer | horse power of a car  |
-|       Price_per_km       |   ? |?  |
-|       Fuel_Cost_per_100km       |   ? |?  |
-|       Annual_Fuel_Cost       |   ? |?  |
-|       CO2_per_year       |   ? |?  |
-|       CO2_Emission_Category       |   ? |?  |
-|       Marketplace       |   character | Index for which source cars were scrapped  |
+| Column Name                  | Data Type   | Description                                  |
+|:----------------------------|:------------|:---------------------------------------------|
+| Index                       | integer     | Index                                        |
+| Brand                       | character   | Brand name of car                            |
+| Model                       | character   | Specific model of a car                      |
+| YearMonth                   | ?           | Date of initial approval                     |
+| Kilometer                   | integer     | Miles of a car in km                         |
+| Gear_Type                   | character   | Gear type of a car                           |
+| Fuel_Type                   | character   | Fuel type of a car                           |
+| Consumption                 | ?           | ?                                            |
+| CO2_g_km                    | ?           | ?                                            |
+| Power_PS                    | integer     | Horse power of a car                         |
+| Price_per_km                | ?           | ?                                            |
+| Fuel_Cost_per_100km         | ?           | ?                                            |
+| Annual_Fuel_Cost            | ?           | ?                                            |
+| CO2_per_year                | ?           | ?                                            |
+| CO2_Emission_Category       | ?           | ?                                            |
+| Marketplace                 | character   | Index for which source cars were scrapped   |
+
 
 ## Virtual Environment 
 Create virtual environment by opening a terminal in project folder and run: 
