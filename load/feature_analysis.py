@@ -5,6 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
+from sklearn.metrics import mean_squared_error, r2_score
+
 
 class FeatureImportanceAnalyzer:
     def __init__(self, best_model_name, best_pipeline, columns_to_encode, columns_to_scale):
@@ -38,15 +40,31 @@ class FeatureImportanceAnalyzer:
         plt.tight_layout()
         plt.show()
 
-    def shap_analysis(self, X_sample):
-        """Run SHAP analysis for models like XGBoost."""
-        model = self.pipeline.named_steps['regressor']
-        preprocessor = self.pipeline.named_steps['preprocessor']
-        X_transformed = preprocessor.transform(X_sample)
-
+    def evaluate_best_model(self, X_sample, y_sample):
+        """
+        Evaluates the best model using residual analysis.
+        """
         try:
-            explainer = shap.Explainer(model)
-            shap_values = explainer(X_transformed[:100])
-            shap.summary_plot(shap_values, X_transformed[:100], feature_names=self.feature_names)
+            # Vorhersage
+            y_pred = self.pipeline.predict(X_sample)
+            residuals = y_sample - y_pred
+
+            # RMSE berechnen
+            rmse = np.sqrt(mean_squared_error(y_sample, y_pred))
+            r2 = r2_score(y_sample, y_pred)
+
+            # Residual Plot
+            plt.figure(figsize=(6, 5))
+            plt.scatter(y_pred, residuals, alpha=0.6, color='cornflowerblue', edgecolor='k')
+            plt.axhline(y=0, color='red', linestyle='--', linewidth=2)
+            plt.xlabel("Predicted Consumption (L/100km)")
+            plt.ylabel("Residuals")
+            plt.title(f"Residual Plot ({self.best_model_name})")
+            plt.grid(True)
+            plt.tight_layout()
+            plt.show()
+
+            print(f"{self.best_model_name} - RMSE: {rmse:.4f}, R²: {r2:.4f}")
+
         except Exception as e:
-            print(f"SHAP analysis failed: {e}")
+            print(f"Evaluation of best model failed: {e}")
