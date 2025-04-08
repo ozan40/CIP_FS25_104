@@ -81,39 +81,46 @@ if __name__ == "__main__":
     # Research Question 2
     # -----------------------
 
-    # Average fuel consumption and CO₂ emissions per marketplace
-    fuel_emissions = (
-        df.groupby('Marketplace')[['Consumption', 'CO2_g_km']]
-        .mean()
-        .reset_index()
-    )
-    print("######################### Research Question 2 #########################\n")
-
-    # Durchschnittlicher Verbrauch & Emissionen nach Marketplace + Fuel_Type
+    # Group by Marketplace and Fuel Type to calculate averages
     fuel_emissions_by_type = (
-        df.groupby(['Marketplace', 'Fuel_Type'])[['Consumption', 'CO2_g_km']]
+        df.groupby(['Marketplace', 'Fuel_Type'])[['Consumption', 'log_CO2_Emission']]
         .mean()
         .reset_index()
     )
 
-    # Set plot style
+    # Set Seaborn style
     sns.set(style="whitegrid")
 
-    # Plot 3: Average Fuel Consumption by Fuel Type and Marketplace
-    plt.figure(figsize=(12, 6))
-    sns.barplot(data=fuel_emissions_by_type, x='Fuel_Type', y='Consumption', hue='Marketplace')
-    plt.title('Average Fuel Consumption (L/100km) by Fuel Type and Marketplace')
-    plt.ylabel('Fuel Consumption (L/100km)')
-    plt.xlabel('Fuel Type')
-    plt.tight_layout()
-    plt.show()
+    # Create side-by-side subplots
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16, 6), sharex=True)
 
-    # Plot 4: Average CO₂ Emissions by Fuel Type and Marketplace
-    plt.figure(figsize=(12, 6))
-    sns.barplot(data=fuel_emissions_by_type, x='Fuel_Type', y='CO2_g_km', hue='Marketplace')
-    plt.title('Average CO2 Emissions (g/km) by Fuel Type and Marketplace')
-    plt.ylabel('CO₂ Emissions (g/km)')
-    plt.xlabel('Fuel Type')
+    # Plot 1: Average Fuel Consumption
+    sns.barplot(
+        data=fuel_emissions_by_type,
+        x='Fuel_Type',
+        y='Consumption',
+        hue='Marketplace',
+        ax=axes[0]
+    )
+    axes[0].set_title('Average Fuel Consumption (L/100km)')
+    axes[0].set_ylabel('Fuel Consumption (L/100km)')
+    axes[0].set_xlabel('Fuel Type')
+    axes[0].tick_params(axis='x', rotation=45)
+
+    # Plot 2: Average CO₂ Emissions
+    sns.barplot(
+        data=fuel_emissions_by_type,
+        x='Fuel_Type',
+        y='log_CO2_Emission',
+        hue='Marketplace',
+        ax=axes[1]
+    )
+    axes[1].set_title('Average CO2 Emissions (g/km)')
+    axes[1].set_ylabel('CO2 Emissions (g/km)')
+    axes[1].set_xlabel('Fuel Type')
+    axes[1].tick_params(axis='x', rotation=45)
+
+    # Adjust layout and show
     plt.tight_layout()
     plt.show()
 
@@ -229,7 +236,7 @@ if __name__ == "__main__":
     # calling FeatureImportancePlotter to plot results
     analyzer = load.FeatureImportanceAnalyzer(best_model_name, best_pipeline, columns_to_encode, columns_to_scale)
     analyzer.plot_feature_importance()
-    analyzer.shap_analysis(X_test)
+    analyzer.evaluate_best_model(X_test, y_test)
 
     # Calling ConsumptionImputer class
     imputer = load.ConsumptionImputer(best_pipeline, features)
