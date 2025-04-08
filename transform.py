@@ -112,4 +112,4 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.show()
 
-    combined_data.to_csv("Data/transformed_output.csv", sep=";")
+    # combined_data.to_csv("Data/transformed_output.csv", sep=";")
