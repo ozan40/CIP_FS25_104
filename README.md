@@ -6,22 +6,33 @@ A final report is provided as well as an interactive report hosted on the stream
 
 <pre style="font-size: 10.0pt; font-family: Arial; line-height: 2; letter-spacing: 1.0pt;" >
 <b>Directory Structure</b>
-|__ <b>.gitignore</b>
-|__ <b>requirements.txt</b>
+|__ <b>Data</b>
+    |______ <b>Auto.de_Data.csv</b>
+    |______ <b>autoscout_data.csv</b>
+    |______ <b>car_mobile.csv</b>
+    |______ <b>imputed_output.csv</b>
 |__ <b>crawler</b>
     |______ <b>__init__.py</b>
     |______ <b>CarsFetcher.py</b>
     |______ <b>CrawledCar.py</b>
 |__ <b>Data</b>
     |______ <b>crawled_output.csv</b>
-|__ <b>scripts</b>
-    |______ <b>autoscout24_scraper.py</b>
-    |______ <b>mobile_scraper.py</b>
-    |______ <b>auto_scraper.py</b>
+|__ <b>miscellaneous</b>
+    |______ <b>car_brand.json</b>
+    |______ <b>importance.png</b>
 |__ <b>transform</b>
     |______ <b>__init__.py</b>
     |______ <b>DataCleaner.py</b>
     |______ <b>DataEnricher.py</b>
+|__ <b>.gitignore</b>
+|__ <b>README.md</b>
+|__ <b>analysis.py</b>
+|__ <b>autoscout_crawler.py</b>
+|__ <b>requirements.txt</b>
+|__ <b>streamlit_app.py</b>
+|__ <b>transform.py</b>
+
+
 
 </pre>
 
