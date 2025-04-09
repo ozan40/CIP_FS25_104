@@ -12,7 +12,7 @@ st.set_page_config(layout="wide")
 
 # Load the dataset
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(BASE_DIR, 'Data', 'imputed_output.csv')
+file_path = os.path.join(BASE_DIR, 'Data','imputed_output.csv')
 df = pd.read_csv(file_path, sep= ";")
 
 st.title("Comparing German Car Marketplaces")
@@ -246,11 +246,9 @@ st.title("1. Which online marketplaces offer the most affordable used cars?")
 st.markdown("### Price Difference between Markplaces")
 st.markdown("For our first research question we want to visually explore the question whether there are differences in car listing prices between marketplaces. Approaching this question, we first plot boxplots of the log of prices for each marketplace.")
 
-df["price_log"] = np.log(df["cleaned_Price"])
-
 
 # Ensure no NaNs and only valid sources
-df_filtered = df[df['price_log'].notna() & df['Marketplace'].isin(['Auto.de', 'Autoscout24.de', 'Mobile.de'])]
+df_filtered = df[df['log_cleaned_price'].notna() & df['Marketplace'].isin(['Auto.de', 'Autoscout24.de', 'Mobile.de'])]
 
 # ECharts boxplot needs 5-number summary for each group
 box_data = []
@@ -259,7 +257,7 @@ x_labels = []
 color = ["#8da0cb","#fc8d62","#66c2a5"]
 
 for i, source in enumerate(['Auto.de', 'Autoscout24.de', 'Mobile.de']):
-    values = df_filtered[df_filtered['Marketplace'] == source]['price_log'].sort_values()
+    values = df_filtered[df_filtered['Marketplace'] == source]['log_cleaned_price'].sort_values()
     q1 = np.percentile(values, 25)
     q3 = np.percentile(values, 75)
     iqr = q3 - q1
@@ -503,7 +501,7 @@ with col2:
 
 
 
-st.subheader("2. How do fuel efficiency and CO₂ emissions differ between marketplaces?")
+st.title("2. How do fuel efficiency and CO₂ emissions differ between marketplaces?")
 
 
 # Ensure no NaNs and only valid sources
@@ -589,7 +587,7 @@ option = {
     ]
 }
 st_echarts(option, height="500px")
-st.markdown("From this plot we can see that Auto.de has higher consumption values compared to Autoscout24.de and Mobile.de. Thought as we already established Auto.de offers newer cars which tend to be more fuel efficiency in general. These results are likely wrong. An explanation could be that Auto.de was had the least NA values after scraping consumption. With Mobile.de we weren't able to scrape any consumption values since these were accessible on the main car listing site. Further scraping mechanism to scrape the detailed view of each individual car was not permited and failed. Therfore we imputed the missing consumption values using machine learning models.")
+st.markdown("This plot suggests that Auto.de has higher consumption values with more variance compared to Autoscout24.de and Mobile.de. Thought as we already established Auto.de offers newer cars which tend to be more fuel efficiency in general. These results are likely wrong. The variance in comsuption values in Mobile.de and Autoscout24.de is very low. An explanation could be that Auto.de was had very little NA values after scraping consumption and therefore the imputed consumption values have less of an impact on the variance and median. With Mobile.de we weren't able to scrape any consumption values since these were not accessible on the main car listing site. Further scraping mechanism to scrape the detailed view of each individual car was not permited and failed. All the consumption values of Mobile.de very imputed using the machine learning model. The low variance of consumption values is soley attributed to imputed values by our model.")
 
 #-------Fuel type
 # Create three columns
@@ -701,7 +699,7 @@ with col3:
 st.markdown("We can see that most cars use Benzin and Diesel. Nearly 80 percent of cars scrapped from Mobile.de use Benzin.")
 #----------Research Question 3
 
-st.subheader("3. How accurately can missing consumption values be predicted by ML models, and which vehicle characteristics have the greatest influence?")
+st.title("3. How accurately can missing consumption values be predicted by ML models, and which vehicle characteristics have the greatest influence?")
 st.markdown("")
 st.markdown('''
 
@@ -719,3 +717,5 @@ st.markdown('''
             ''')
 
 st.image("./miscellaneous/importance.png", width=600)
+
+
