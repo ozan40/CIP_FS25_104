@@ -33,6 +33,7 @@ class CrawledCar():
         ]
 
         # Datei schreiben
+        # https: // docs.python.org / 3 / library / csv.html  # csv.writer
         with open(filename, mode="w", newline="", encoding="utf-8") as writefile:
             writer = csv.writer(writefile, delimiter=";")  # Semikolon als Trennzeichen setzen
             writer.writerow(headers)  # Kopfzeile schreiben
