@@ -21,3 +21,6 @@ venv/
 
 # MacOS-spezifische Dateien
 .DS_Store
+
+# ignoriere alle requirements.txt
+requirements.txt
