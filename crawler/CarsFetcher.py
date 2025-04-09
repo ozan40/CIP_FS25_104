@@ -76,7 +76,6 @@ class CarsFetcher():
     def fetch(self):
         cars_element = []
         first_registration = np.arange(2010, 2023, 1)
-        first_registration = np.arange(2010, 2018, 1)
         pages = np.arange(1, 20, 1)
 
         for registration in first_registration:
@@ -120,4 +119,4 @@ class CarsFetcher():
         return cars_element
 
     def close(self):
-        self.driver.quit()  # Selenium schließen
+        self.driver.quit()  # Selenium schliessen
