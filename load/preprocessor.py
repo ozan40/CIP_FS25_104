@@ -4,6 +4,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 import pandas as pd
 
+# Used sources:
+# Scaling: https://scikit-learn.org/stable/modules/preprocessing.html#standardization-or-mean-removal-and-variance-scaling
 class PreprocessorBuilder:
     def __init__(self, df, features, target):
         self.df = df
