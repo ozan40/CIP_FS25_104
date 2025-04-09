@@ -8,7 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-import load
+import analysis
 
 
 if __name__ == "__main__":
@@ -126,16 +126,16 @@ if __name__ == "__main__":
 
     print("######################### Research Question 3 #########################\n")
     # calling DataLoader classes
-    data_loader = load.DataLoader("Data/transformed_output.csv")
+    data_loader = analysis.DataLoader("Data/transformed_output.csv")
     data_frame = data_loader.load_data()
     X, y, features = data_loader.prepare_features(data_frame)
 
     # calling PreprocessBuilder classes to build preprocessor
-    builder = load.PreprocessorBuilder(X,features,y)
+    builder = analysis.PreprocessorBuilder(X, features, y)
     preprocessor, columns_to_encode, columns_to_scale = builder.build_pipeline()
 
     # calling ModelTrainer() classes to build and train models
-    trainer = load.ModelTrainer(X, y, preprocessor)
+    trainer = analysis.ModelTrainer(X, y, preprocessor)
 
     # get train and testdata
     X_train, X_test, y_train, y_test = trainer.get_train_test_data()
@@ -234,12 +234,12 @@ if __name__ == "__main__":
     best_model_name, best_pipeline = trainer.get_best_model()
 
     # calling FeatureImportancePlotter to plot results
-    analyzer = load.FeatureImportanceAnalyzer(best_model_name, best_pipeline, columns_to_encode, columns_to_scale)
+    analyzer = analysis.FeatureImportanceAnalyzer(best_model_name, best_pipeline, columns_to_encode, columns_to_scale)
     analyzer.plot_feature_importance()
     analyzer.evaluate_best_model(X_test, y_test)
 
     # Calling ConsumptionImputer class
-    imputer = load.ConsumptionImputer(best_pipeline, features)
+    imputer = analysis.ConsumptionImputer(best_pipeline, features)
     imputed_df = imputer.impute(data_frame)
 
     imputed_df.to_csv("Data/imputed_output.csv", sep = ";")
