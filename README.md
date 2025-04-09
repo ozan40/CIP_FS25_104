@@ -40,10 +40,10 @@ A final report is provided as well as an interactive report hosted on the stream
 | Consumption                 | float          | Consumption of a car. NA were imputed using a machine learning model|
 | CO2_g_km                    | integer           | CO2 emmision of a car                                            |
 | Power_PS                    | integer     | Horse power of a car                         |
-| Price_per_km                | float           | ?                                            |
-| Fuel_Cost_per_100km         | float           | ?                                            |
-| Annual_Fuel_Cost            | float           | ?                                            |
-| CO2_per_year                | float          | ?                                            |
+| Price_per_km                | float           | Price divided by km                                             |
+| Fuel_Cost_per_100km         | float           | fuel cost per 100 km                                          |
+| Annual_Fuel_Cost            | float           | annual fuel cost                                        |
+| CO2_per_year                | float          | CO2 per year                                           |
 | CO2_Emission_Category       | Logical           | CO2 Emissions below or above average                                            |
 | Marketplace                 | character   | Index for which source cars were scrapped   |
 | log_cleanned_price                 | float   | Log of Price  |
