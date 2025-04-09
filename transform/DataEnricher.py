@@ -31,12 +31,13 @@ class DataEnricher:
             )
 
             # Jährliche Spritkosten basierend auf 18.507 km/Jahr
+            # average mile 11500 source:
+            # https: // www.epa.gov / greenvehicles / greenhouse - gas - emissions - typical - passenger - vehicle  #:~:text=typical%20passenger%20vehicle%3F-,A%20typical%20passenger%20vehicle%20emits%20about%204.6%20metric%20tons%20of,8%2C887%20grams%20of%20CO2.
             self.df["Annual_Fuel_Cost"] = round(self.df["Fuel_Cost_per_100km"] * (18507.456 / 100),2)
 
             # CO2-Emissionen pro Jahr berechnen
-
+            # average co2 source:
             # Quelle: EPA - https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle
-
             self.df["CO2_per_year"] = round(self.df["CO2_Emission"] * (18507.456 / 1000),2)
             average_co2_per_year = 4600  # 4.6 metric tons (4600 kg)
 
