@@ -33,19 +33,26 @@ A final report is provided as well as an interactive report hosted on the stream
 | Index                       | integer     | Index                                        |
 | Brand                       | character   | Brand name of car                            |
 | Model                       | character   | Specific model of a car                      |
-| YearMonth                   | ?           | Date of initial approval                     |
+| YearMonth                   | date          | Date of initial approval                     |
 | Kilometer                   | integer     | Miles of a car in km                         |
 | Gear_Type                   | character   | Gear type of a car                           |
 | Fuel_Type                   | character   | Fuel type of a car                           |
-| Consumption                 | ?           | ?                                            |
-| CO2_g_km                    | ?           | ?                                            |
+| Consumption                 | float          | Consumption of a car. NA were imputed using a machine learning model|
+| CO2_g_km                    | integer           | CO2 emmision of a car                                            |
 | Power_PS                    | integer     | Horse power of a car                         |
-| Price_per_km                | ?           | ?                                            |
-| Fuel_Cost_per_100km         | ?           | ?                                            |
-| Annual_Fuel_Cost            | ?           | ?                                            |
-| CO2_per_year                | ?           | ?                                            |
-| CO2_Emission_Category       | ?           | ?                                            |
+| Price_per_km                | float           | ?                                            |
+| Fuel_Cost_per_100km         | float           | ?                                            |
+| Annual_Fuel_Cost            | float           | ?                                            |
+| CO2_per_year                | float          | ?                                            |
+| CO2_Emission_Category       | Logical           | CO2 Emissions below or above average                                            |
 | Marketplace                 | character   | Index for which source cars were scrapped   |
+| log_cleanned_price                 | float   | Log of Price  |
+| log_price_per_km                 | float   | Log of price per km  |
+| log_CO2_Emission                 | float   | Log of CO2   |
+| log_CO2_per_year                 | float   | Log of CO2 per year  |
+| car_age                 | float   | Age of car calculated up to 2025  |
+
+
 
 
 ## Virtual Environment 
