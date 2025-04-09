@@ -132,7 +132,7 @@ class carFetcher():
             return None
             
         try:
-               # Wait for the page to load and fetch cars
+               # Wait for the page to analysis and fetch cars
             response = requests.get(full_url)
             print(response.status_code)
 
@@ -153,7 +153,7 @@ class carFetcher():
                 self.driver.execute_script("arguments[0].click();", mehr_anzeigen_button)
                 new_url_afer_click = self.driver.current_url
                 print("New URL:", new_url_afer_click)
-                # Wait for the page to load after clicking
+                # Wait for the page to analysis after clicking
                 WebDriverWait(self.driver, 5).until(
                     EC.presence_of_element_located((By.XPATH, "//button[@type='button' and contains(@class, 'FWtU1') and contains(@class, 'drxl5') and contains(@class, 'XY6XP') and @role='link']"))
                 )
@@ -253,7 +253,7 @@ class carFetcher():
                 # Click the button using JavaScript
                 self.driver.execute_script("arguments[0].click();", next_button)
 
-                # Wait for the page to load
+                # Wait for the page to analysis
                 time.sleep(5)
         except Exception as e:
                 print(f"No 'Next' button found or error occurred: {e}")
@@ -278,7 +278,7 @@ class carFetcher():
             self.driver.get(changed_url)
             #print(f"Fetching from: {url}")
             for i in range(max_pages):
-                # Wait for the page to load and fetch cars
+                # Wait for the page to analysis and fetch cars
                 time.sleep(5)
                 cars_on_page = WebDriverWait(self.driver, 10).until(
                     lambda driver: self.fetch_page()  # Fetch cars when the page is ready: explain this code later

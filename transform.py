@@ -9,7 +9,7 @@ import numpy as np
 if __name__ == "__main__":
 
     print("########################### Autoscout.de Transformation Part ###########################\n")
-    # load data
+    # analysis data
     autoscout_df = pd.read_csv("Data/autoscout_data.csv", sep=";")
 
     # clean Data
