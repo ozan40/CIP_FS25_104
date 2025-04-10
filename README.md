@@ -1,6 +1,6 @@
 ![Online Car Marketplaces](miscellaneous/Analysis_Online_Car.png)
 # Analysis of Online Car Marketplaces
-This project analyzes used car listings from major German online platforms – **Auto.de**, **AutoScout24**, and **Mobile.de** – with the goal of comparing prices, fuel efficiency, and environmental performance. The project includes:
+This project analyzes used car listings from major German online platforms – **Auto.de** (Lead: Thomas van der Wardt), **AutoScout24** (Lead: Ozan Irmak), and **Mobile.de** (Lead: Oliver Zingg) – with the goal of comparing prices, fuel efficiency, and environmental performance. The project includes:
 
 - A full **data pipeline** (crawling → transformation → modeling)
 - Comparative **marketplace analysis**
