@@ -1,68 +1,81 @@
-# Analysis-Online-Car-Marketplaces
-This project aims to analyze and compare used car prices, fuel efficiency, and emissions across online marketplaces to identify trends in pricing, cost-effectiveness, and environmental impact. Data from various sources is collected, processed, and analyzed to generate actionable market insights.
-A final report is provided as well as an interactive report hosted on the streamlit server: <https://german-marketplace-car-comparison.streamlit.app>
+![Online Car Marketplaces](miscellaneous/Analysis_Online_Car.png)
+# Analysis of Online Car Marketplaces
+This project analyzes used car listings from major German online platforms – **Auto.de**, **AutoScout24**, and **Mobile.de** – with the goal of comparing prices, fuel efficiency, and environmental performance. The project includes:
 
-## Directory Structure
+- A full **data pipeline** (crawling → transformation → modeling)
+- Comparative **marketplace analysis**
+- Imputation of missing fuel consumption values using **machine learning**
+- A final report and **interactive dashboard** hosted on [Streamlit] <https://german-marketplace-car-comparison.streamlit.app>
 
-<pre style="font-size: 10.0pt; font-family: Arial; line-height: 2; letter-spacing: 1.0pt;" >
-<b>Directory Structure</b>
-|__ <b>Data</b>
-    |______ <b>Auto.de_Data.csv</b>
-    |______ <b>autoscout_data.csv</b>
-    |______ <b>car_mobile.csv</b>
-    |______ <b>imputed_output.csv</b>
-|__ <b>crawler</b>
-    |______ <b>__init__.py</b>
-    |______ <b>CarsFetcher.py</b>
-    |______ <b>CrawledCar.py</b>
-|__ <b>Data</b>
-    |______ <b>crawled_output.csv</b>
-|__ <b>miscellaneous</b>
-    |______ <b>car_brand.json</b>
-    |______ <b>importance.png</b>
-|__ <b>transform</b>
-    |______ <b>__init__.py</b>
-    |______ <b>DataCleaner.py</b>
-    |______ <b>DataEnricher.py</b>
-|__ <b>.gitignore</b>
-|__ <b>README.md</b>
-|__ <b>analysis.py</b>
-|__ <b>autoscout_crawler.py</b>
-|__ <b>requirements.txt</b>
-|__ <b>streamlit_app.py</b>
-|__ <b>transform.py</b>
+## Project Structure
 
+```bash
+├── Data/
+│   ├── Auto.de_Data.csv
+│   ├── autoscout_data.csv
+│   ├── car_mobile.csv
+│   ├── crawled_output.csv
+│   └── imputed_output.csv
+│
+├── crawler/
+│   ├── __init__.py
+│   ├── CarsFetcher.py
+│   └── CrawledCar.py
+│
+├── transform/
+│   ├── __init__.py
+│   ├── DataCleaner.py
+│   └── DataEnricher.py
+│
+├── load/                   
+│   ├── __init__.py
+│   ├── data_loader.py
+│   ├── preprocessor.py
+│   ├── model_trainer.py
+│   ├── feature_analysis.py
+│   └── imputer.py
+│
+├── miscellaneous/
+│   ├── car_brand.json
+│   └── importance.png
+│
+├── .gitignore
+├── README.md
+├── requirements.txt
+├── analysis.py
+├── autoscout_crawler.py
+├── streamlit_app.py
+└── transform.py
+```
 
-
-</pre>
 
 
 ## Dataset
 
-| Column Name                  | Data Type   | Description                                  |
-|:----------------------------|:------------|:---------------------------------------------|
-| Index                       | integer     | Index                                        |
-| Brand                       | character   | Brand name of car                            |
-| Model                       | character   | Specific model of a car                      |
-| YearMonth                   | date          | Date of initial approval                     |
-| Kilometer                   | integer     | Miles of a car in km                         |
-| Gear_Type                   | character   | Gear type of a car                           |
-| Fuel_Type                   | character   | Fuel type of a car                           |
-| Consumption                 | float          | Consumption of a car. NA were imputed using a machine learning model|
-| CO2_g_km                    | integer           | CO2 emmision of a car                                            |
-| Power_PS                    | integer     | Horse power of a car                         |
-| Price_per_km                | float           | Price divided by km                                             |
-| Fuel_Cost_per_100km         | float           | fuel cost per 100 km                                          |
-| Annual_Fuel_Cost            | float           | annual fuel cost                                        |
-| CO2_per_year                | float          | CO2 per year                                           |
-| CO2_Emission_Category       | Logical           | CO2 Emissions below or above average                                            |
-| Marketplace                 | character   | Index for which source cars were scrapped   |
-| log_cleanned_price                 | float   | Log of Price  |
-| log_price_per_km                 | float   | Log of price per km  |
-| log_CO2_Emission                 | float   | Log of CO2   |
-| log_CO2_per_year                 | float   | Log of CO2 per year  |
-| car_age                 | float   | Age of car calculated up to 2025  |
-
+| Column Name           | Data Type   | Description                                                                                                                                                                                              |
+|:----------------------|:------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Index                 | integer     | Index                                                                                                                                                                                                    |
+| Brand                 | string      | Brand name of the vehicle                                                                                                                                                                                |
+| Model                 | string      | Specific model of the car                                                                                                                                                                                |
+| YearMonth             | date        | Month and year of registration                                                                                                                                                                           |
+| Kilometer             | integer     | Mileage in kilometers                                                                                                                                                                                    |
+| Gear_Type             | categorical | Transmission type                                                                                                                                                                                        |
+| Fuel_Type             | categorical | Type of fuel used                                                                                                                                                                                        |
+| Consumption           | float       | Fuel consumption (L/100 km); missing values imputed. NA were imputed using a machine learning model                                                                                                      |
+| CO2_g_km              | integer     | CO₂ emissions in g/km                                                                                                                                                                                    |
+| Power_PS              | integer     | Engine power in PS                                                                                                                                                                                       |
+| Price_per_km          | float       | Price divided by km                                                                                                                                                                                      |
+| cleaned_Price         | float       | Final cleaned price in EUR                                                                                                                                                                               |
+| Fuel_Cost_per_100km   | float       | Calculated fuel cost per 100 km                                                                                                                                                                          |
+| Annual_Fuel_Cost      | float       | Average cost based on yearly mileage (18,507 km)                                                                                                                                                         |
+| CO2_per_year          | float       | Yearly CO₂ emissions in kg                                                                                                                                                                               |
+| CO2_Emission_Category | Logical     | Above or below 4600 kg threshold (EPA, 2018)                                                                                                                                                             |
+| Marketplace           | string      | Source marketplace (Auto.de, Autoscout, etc.)                                                                                                                                                            |
+| log_cleanned_price    | float       | Log-transformed price                                                                                                                                                                                    |
+| log_price_per_km      | float       | Log-transformed price per km                                                                                                                                                                             |
+| log_CO2_Emission      | float       | Log-transformed CO₂ emissions                                                                                                                                                                            |
+| log_CO2_per_year      | float       | Log-transformed yearly CO₂                                                                                                                                                                               |
+| car_age               | float       | Calculated age (in years) as of 2025                                                                                                                                                                     |
 
 
 
@@ -87,27 +100,30 @@ To install all python packages in your local virtual environment run:
 Show list of installed packages:
 `pip3 list`
 
-### Update requirements.txt
+## Run Analysis Script
+python analysis.py
 
+## Launch Streamlit Dashboard
+streamlit run streamlit_app.py
+
+## Updating Dependencies
 After you install a new packages you can create an updated requirements.txt file and push it to github
 
-`pip3 freeze > requirements.txt`
+`pip freeze > requirements.txt`
 
-
-### Do not Commit Venv to Github
-Add it to gitignore file so it doesn't get uploaded
-
-`echo "venv/" >> .gitignore` 
-
-`git add .gitignore`
-
-`git commit -m "Ignore virtual environment"`
-
-### Add .idea (pycharm: project-specific settings, configurations, and metadata) to gitignore
+## Gitignore Setup
+Make sure to exclude local dev folders and environments:
+`echo "venv/" >> .gitignore`
 `echo ".idea/" >> .gitignore`
+git add .gitignore
+git commit -m "Ignore virtualenv and IDE files"
 
-`git add .gitignore`
+## Summary of Key Results
 
-`git commit -m "Ignore PyCharm settings folder"`
+- **Auto.de** shows higher average prices, particularly for premium brands – likely due to a stronger focus on dealer listings.
+- **Fuel consumption and CO₂ emissions** are lower on AutoScout24, suggesting a more eco-focused vehicle selection.
+- **XGBoost** and **Random Forest** outperformed all other ML models in predicting missing fuel consumption values (RMSE ≈ 0.09).
+- Feature importance analysis revealed that **CO₂ emissions**, **Kilometer**, **Cleaned Proice** and **Car Age** are the most influential predictors of consumption.
 
-
+## Licence
+This project is developed as part of the **CIP course at HSLU – MSc in Applied Information and Data Science.**
