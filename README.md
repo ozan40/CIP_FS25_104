@@ -37,6 +37,7 @@ This project analyzes used car listings from major German online platforms – *
 │
 ├── miscellaneous/
 │   ├── car_brand.json
+│   ├── Analysis_Online_Car.png
 │   └── importance.png
 │
 ├── .gitignore
